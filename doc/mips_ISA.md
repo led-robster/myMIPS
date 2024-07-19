@@ -41,3 +41,66 @@ MIPS ISA instructions comprise:
 |jump|j addr||J||Y|
 |jump register|jr $reg||R||Y|
 |jump and link|jal addr||J||Y|
+
+### myMIPS ISA
+* add
+* subtract
+* addi
+* mfc0
+* and
+* or
+* andi
+* ori
+* sll
+* srl
+* lw
+* sw
+* beq
+* j
+* jr
+* jal
+
+
+
+## INSTRUCTION FORMATs
+In a 32bit MIPS yhe format is as listed below :
+
+|format||||fields|||used by|
+|------|-|-|-|-|-|------|-------|
+||6 bits|5 bits|5 bits|5 bits|5 bits|6 bits||
+|Rformat|opcode|rs|rt|rd|shamt|Fcode|ALU instructions. except immediate, jump register|
+|Iformat|opcode|rs|rt|offset/immediate|load,store,imnmediate ALU,beq,bne|
+|Jformat|opcode||||target address||Jump,jump and link|
+
+**shamt** := shift amount
+
+the opcode for R-format instructions is 0x0 except for mfc0 (but why?).
+
+### myMIPS ISA table
+
+|format||||fields||used by|
+|------|-|-|-|-|-------|-|
+||4 bits|3 bits|3 bits|3 bits|3 bits||
+|Rformat|opcode|rs|rt|rd/shamt|Fcode|ALU instructions. except immediate, jump register|
+|Iformat|opcode|rs|rt|offset/immediate||load,store,imnmediate ALU,beq,bne|
+|Jformat|opcode|target address||||Jump,jump and link|
+
+|name|format|Bits 15-12|Bits 11-9|Bits 8-6|Bits 5-3|Bits 2-0|
+|-|-|-|-|-|-|-|
+|add|R|0000|rs|rt|rd|000|
+|subtract|R|0000|rs|rt|rd|001|
+|addi|I|0001|rs|rt|imm|
+|mfc0|R|0011|0|rt|epc|0|
+|and|R|0000|rs|rt|rd|010|
+|or|R|0000|rs|rt|rd|011|
+|slt|R|0000|rs|rt|rd|100|
+|slti|I|0100|rs|rt|imm||
+|sll|R|0000|rs|rt|shamt|101|
+|srl|R|0000|rs|rt|shamt|110|
+|lw|I|0101|rs|rt|offset||
+|sw|I|0110|rs|rt|offset||
+|beq|I|0111|rs|rt|immediate||
+|j|J|1000|addr|||
+|jr|R|0000|rs|0|0|111|
+|jal|J|1001|addr|||
+
