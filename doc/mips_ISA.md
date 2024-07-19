@@ -85,6 +85,8 @@ the opcode for R-format instructions is 0x0 except for mfc0 (but why?).
 |Iformat|opcode|rs|rt|offset/immediate||load,store,imnmediate ALU,beq,bne|
 |Jformat|opcode|target address||||Jump,jump and link|
 
+> IMPLICATIONS: the J format can address 12-bit target addresses (proper concatenation has to be applied). The 'jr' instruction can address $rx which is a 16-bit address.
+
 |name|format|Bits 15-12|Bits 11-9|Bits 8-6|Bits 5-3|Bits 2-0|
 |-|-|-|-|-|-|-|
 |add|R|0000|rs|rt|rd|000|
@@ -104,3 +106,9 @@ the opcode for R-format instructions is 0x0 except for mfc0 (but why?).
 |jr|R|0000|rs|0|0|111|
 |jal|J|1001|addr|||
 
+## MEMORY ASPECTS
+
+Memory is NOT byte-addressable, but word-addressable.  
+Why this choice?  
+Since there is no instruction suited for smaller or bigger words. For example in a32-bit MIPS the memory is byte-addressable since there are the reduced instructions like 'lb' to load a byte or 'lh' for loading halfwords.  
+In a memory is important memory aligmìnment to grant speed to overall instruction execution. For my solution I'm adopting a word-addressable memory, that is aligned by definition. This implementation has the **pro** that bypasses memory alignment checks (speeding architecture), and a **con** that doesn't implement byte operations, but since we dont care about those is not  a problem.   
