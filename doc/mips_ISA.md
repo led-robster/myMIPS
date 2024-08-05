@@ -60,6 +60,9 @@ MIPS ISA instructions comprise:
 * jr
 * jal
 
+Number of registers : 8  
+Width of registers : 16 bit
+
 
 
 ## INSTRUCTION FORMATs
@@ -69,7 +72,7 @@ In a 32bit MIPS yhe format is as listed below :
 |------|-|-|-|-|-|------|-------|
 ||6 bits|5 bits|5 bits|5 bits|5 bits|6 bits||
 |Rformat|opcode|rs|rt|rd|shamt|Fcode|ALU instructions. except immediate, jump register|
-|Iformat|opcode|rs|rt|offset/immediate|load,store,imnmediate ALU,beq,bne|
+|Iformat|opcode|rs|rt|offset/immediate|load,store,immediate ALU,beq,bne|
 |Jformat|opcode||||target address||Jump,jump and link|
 
 **shamt** := shift amount
@@ -92,19 +95,19 @@ the opcode for R-format instructions is 0x0 except for mfc0 (but why?).
 |add|R|0000|rs|rt|rd|000|
 |subtract|R|0000|rs|rt|rd|001|
 |addi|I|0001|rs|rt|imm|
-|mfc0|R|0011|0|rt|epc|0|
+|mfc0|R|0010|0|rt|epc|0|
 |and|R|0000|rs|rt|rd|010|
 |or|R|0000|rs|rt|rd|011|
 |slt|R|0000|rs|rt|rd|100|
-|slti|I|0100|rs|rt|imm||
+|slti|I|0011|rs|rt|imm||
 |sll|R|0000|rs|rt|shamt|101|
 |srl|R|0000|rs|rt|shamt|110|
-|lw|I|0101|rs|rt|offset||
-|sw|I|0110|rs|rt|offset||
-|beq|I|0111|rs|rt|immediate||
-|j|J|1000|addr|||
+|lw|I|0100|rs|rt|offset||
+|sw|I|0101|rs|rt|offset||
+|beq|I|0110|rs|rt|immediate||
+|j|J|0111|addr|||
 |jr|R|0000|rs|0|0|111|
-|jal|J|1001|addr|||
+|jal|J|1000|addr|||
 
 ## MEMORY ASPECTS
 
