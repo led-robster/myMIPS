@@ -7,7 +7,7 @@ MIPS ISA instructions comprise:
 |add unsigned|addu $s1,$s2,$s3||R||N|
 |subtract unsigned|subu $s1,$s2,$s3||R||N|
 |add immediate unsigned|addiu $s1,$s2,k||||N|
-|move from coprocessor register|mfc0 $s1,$epc|$s1=$epc|R||Y|
+|move from coprocessor register|mfc0 $s1,$epc|$s1=$epc|R||N|
 |multiply|mult $s2,$s3|Hi,Lo=$s2x$s3|R||Y|
 |multiply unsigned|multu $s2,$s3|Hi,Lo=$s2x$s3|R||N|
 |divide|div $s2,$s3|Lo=$s2/$s3, Hi=$s2mod$s3|R||Y|
@@ -46,7 +46,6 @@ MIPS ISA instructions comprise:
 * add
 * subtract
 * addi
-* mfc0
 * and
 * or
 * andi
@@ -84,7 +83,7 @@ the opcode for R-format instructions is 0x0 except for mfc0 (but why?).
 |format||||fields||used by|
 |------|-|-|-|-|-------|-|
 ||4 bits|3 bits|3 bits|3 bits|3 bits||
-|Rformat|opcode|rs|rt|rd/shamt|Fcode|ALU instructions. except immediate, jump register|
+|Rformat|opcode|rs|rt|rd/shamt|Fcode|ALU instructions (except immediate), jump register|
 |Iformat|opcode|rs|rt|offset/immediate||load,store,imnmediate ALU,beq,bne|
 |Jformat|opcode|target address||||Jump,jump and link|
 
@@ -95,7 +94,6 @@ the opcode for R-format instructions is 0x0 except for mfc0 (but why?).
 |add|R|0000|rs|rt|rd|000|
 |subtract|R|0000|rs|rt|rd|001|
 |addi|I|0001|rs|rt|imm|
-|mfc0|R|0010|0|rt|epc|0|
 |and|R|0000|rs|rt|rd|010|
 |or|R|0000|rs|rt|rd|011|
 |slt|R|0000|rs|rt|rd|100|
