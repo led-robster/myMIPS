@@ -113,3 +113,9 @@ Memory is NOT byte-addressable, but word-addressable.
 Why this choice?  
 Since there is no instruction suited for smaller or bigger words. For example in a32-bit MIPS the memory is byte-addressable since there are the reduced instructions like 'lb' to load a byte or 'lh' for loading halfwords.  
 In a memory is important memory aligmìnment to grant speed to overall instruction execution. For my solution I'm adopting a word-addressable memory, that is aligned by definition. This implementation has the **pro** that bypasses memory alignment checks (speeding architecture), and a **con** that doesn't implement byte operations, but since we dont care about those is not  a problem.   
+
+## SPECIAL FUNCTION REGISTERS
+The **ZERO** register.
+The **RETURN ADDRESS** register.
+the **ALU STATUS** register.
+The **PC**.
