@@ -144,12 +144,14 @@ def main():
     fh = open(asm_path, "r")
     fw = open(bins_path, "w")
 
-    line_cnt = 1
+    line_cnt = 0
     for line in fh.readlines():
+
+        line_cnt += 1
 
         line_list = line.split(" ")
 
-        if line_list[0]==";":
+        if line_list[0]==";" or len(line_list)==1:
             # comment line
             continue
 
@@ -218,8 +220,6 @@ def main():
             print__pointy_separator
             print("invalid opcode.")
             exit
-
-        line_cnt += 1
 
         fw.write(line_bin+'\n')
 
