@@ -1,0 +1,15 @@
+ADD $r0, $r1, $r2
+SUB $r0, $r1, $r2
+ADDI $r0, $r1, d'10
+AND $r0, $r1, $r2
+OR $r0, $r1, $r2
+SLT $r0, $r1, $r2
+SLTI $r0, $r1, h'F
+SLL $r0, $r1, d'3
+SRL $r0, $r1, d'3
+LW $r0, $r1, d'10
+SW $r0, $r1, d'10
+BEQ $r0, $r1, d'1 ; if $r0==$r1 then PC = PC + 2 + 2 * offset
+J h'FFF
+JR $r1, $r0, $r0
+JAL h'FFF
