@@ -89,20 +89,20 @@ the opcode for R-format instructions is 0x0 except for mfc0 (but why?).
 
 > IMPLICATIONS: the J format can address 12-bit target addresses (proper concatenation has to be applied). The 'jr' instruction can address $rx which is a 16-bit address.
 
-|name|format|Bits 15-12|Bits 11-9|Bits 8-6|Bits 5-3|Bits 2-0|
-|-|-|-|-|-|-|-|
+|name|format|Bits 15-12|Bits 11-9|Bits 8-6|Bits 5-3|Bits 2-0|desc|
+|-|-|-|-|-|-|-|-|
 |add|R|0000|rs|rt|rd|000|
 |subtract|R|0000|rs|rt|rd|001|
 |addi|I|0001|rs|rt|imm|
 |and|R|0000|rs|rt|rd|010|
 |or|R|0000|rs|rt|rd|011|
-|slt|R|0000|rs|rt|rd|100|
+|slt|R|0000|rs|rt|rd|100| 
 |slti|I|0011|rs|rt|imm||
 |sll|R|0000|rs|rt|shamt|101|
 |srl|R|0000|rs|rt|shamt|110|
-|lw|I|0100|rs|rt|offset||
-|sw|I|0101|rs|rt|offset||
-|beq|I|0110|rs|rt|immediate||
+|lw|I|0100|rs|rt|offset||store RAM[$rs + offset] in $rt|
+|sw|I|0101|rs|rt|offset||store $rt in RAM[$rs + offset]
+|beq|I|0110|rs|rt|immediate||if ($rs==$rt) then branch to PC +2 +2*offset|
 |j|J|0111|addr|||
 |jr|R|0000|rs|0|0|111|
 |jal|J|1000|addr|||
