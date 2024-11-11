@@ -20,8 +20,12 @@ module control (
     // MUXes
     output reg RES_MUX,
     output reg OP2_MUX,
-    output reg[1:0] PC_MUX,
-    output reg SHAMT_IMM_MUX
+    output reg PC_MUX,
+    output reg SHAMT_IMM_MUX, 
+    output reg BEQ_MUX,
+    output reg JUMP_MUX,
+    output reg WB_MUX,
+    output reg SILENCE_MUX
 );
 
 reg state;
@@ -46,6 +50,8 @@ wire[15:0] instruction;
 reg jump, jump_d, jump_dd;
 reg memory_op, memory_op_d, memory_op_dd;
 reg shamt_d;
+reg wb_wr; // write-back write in regfile 
+reg silence_op, silence_d, silence_dd, silence_ddd; // 1: silence_on, 0: silence_off
 
 
 assign Fcode = instruction[2:0];
@@ -81,7 +87,7 @@ always @(posedge clk or negedge rst) begin
     end else begin
         // always reading source registers
         rd_rs <= 1'b1;
-        rd_rt <= 1'b1;
+        rd_rt <= 1'b1; 
     end
 end
 
@@ -114,11 +120,21 @@ always @(posedge clk or negedge rst) begin
 
         // default
         SHAMT_IMM_MUX   <= 1'b0;
-        RES_MUX <= 1'b1;
-        OP2_MUX <= 1'b0;
-        PC_MUX <= 2'b01;
-        ram_rd <= 1'b0;
-        ram_wr <= 1'b0;
+        RES_MUX         <= 1'b1;
+        OP2_MUX         <= 1'b0;
+        PC_MUX          <= 1'b1;
+        JUMP_MUX        <= 1'b0;
+        BEQ_MUX         <= 1'b1;
+        WB_MUX          <= 1'b0;
+        ram_rd          <= 1'b0;
+        ram_wr          <= 1'b0;
+        wb_wr           <= 1'b0;
+        silence_op      <= 1'b0;
+
+        // silence_op HIGH @EXECUTE, silence_d HIGH @MA, silence_dd HIGH @WRITEBACK
+        silence_d <= silence_op;
+        silence_dd <= silence_d;
+        silence_ddd <= silence_dd;
 
         if (opcode==0) begin
             // R-format
@@ -170,48 +186,58 @@ always @(posedge clk or negedge rst) begin
         end else if (opcode==4'b0001) begin
             // addi
             OP2_MUX <= 1'b1;
-            SHAMT_IMM_MUX <= 1'b0;
-            //
+            // +
             ALU_cmd <= 3'b000;
         end else if (opcode==4'b0011) begin
             // slti
             OP2_MUX <= 1'b1;
-            SHAMT_IMM_MUX <= 1'b0;
             // >
             ALU_cmd <= 3'b011;
         end else if (opcode==4'b0100) begin
             // lw
             OP2_MUX <= 1'b1;
-            SHAMT_IMM_MUX <= 1'b0;
             ram_rd <= 1'b1;
             RES_MUX <= 1'b0;
+            wb_wr <= 1'b1;
             // +
             ALU_cmd <= 3'b000;
          end else if (opcode==4'b0101) begin
             // sw
             OP2_MUX <= 1'b1;
-            SHAMT_IMM_MUX <= 1'b0;
             ram_wr <= 1'b1; 
             // +
             ALU_cmd <= 3'b000;
         end else if (opcode==4'b0110) begin
             // beq
             OP2_MUX <= 1'b0;
-            PC_MUX <= 2'b10;
+            BEQ_MUX <= 1'b0;
             //== 
             ALU_cmd <= 3'b111;
         end else if (opcode==4'b0111) begin
             // j
-
+            OP2_MUX <= 1'b1; 
+            JUMP_MUX <= 1'b1;
+            silence_op <= 1'b1;
+            SILENCE_MUX <= 1'b1;
+            // + , 0+imm
+            ALU_cmd <= 3'b000;
         end else if (opcode==4'b1000) begin
             // jal
+            OP2_MUX <= 1'b1;
+            JUMP_MUX <= 1'b1; 
+            WB_MUX <= 1'b1;
+            wb_wr <= 1'b1;
+            wb_waddr <= 4'hF;
+        end
 
+
+        if silence_ddd==1'b1 begin
+            SILENCE_MUX <= 1'b0;
         end
 
     end
 
 end
-
 
 
 always @(posedge clk or negedge rst) begin
