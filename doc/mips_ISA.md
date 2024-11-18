@@ -105,7 +105,7 @@ the opcode for R-format instructions is 0x0 except for mfc0 (but why?).
 |beq|I|0110|rs|rt|immediate||if ($rs==$rt) then branch to PC +2 +2*offset|
 |j|J|0111|addr|||
 |jr|R|0000|rs|0|0|111|
-|jal|J|1000|addr|||
+|jal|J|1000|addr||||same as j, but store PC in $ra|
 
 ## MEMORY ASPECTS
 

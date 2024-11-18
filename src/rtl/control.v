@@ -177,20 +177,22 @@ always @(posedge clk or negedge rst) begin
                 ALU_cmd <= 3'b100;
             end else if (Fcode==7) begin
                 // jr
-                OP2_MUX <= 1'b0;
+                OP2_MUX <= 1'b0; // read $r0
                 // add operation
                 ALU_cmd <= 3'b000;
                 //
-                jump <= 1'b1;
+                JUMP_MUX <= 1'b1;
             end
         end else if (opcode==4'b0001) begin
             // addi
             OP2_MUX <= 1'b1;
+            wb_wr <= 1'b1;
             // +
             ALU_cmd <= 3'b000;
         end else if (opcode==4'b0011) begin
             // slti
             OP2_MUX <= 1'b1;
+            wb_wr <= 1'b1;
             // >
             ALU_cmd <= 3'b011;
         end else if (opcode==4'b0100) begin
@@ -209,8 +211,9 @@ always @(posedge clk or negedge rst) begin
             ALU_cmd <= 3'b000;
         end else if (opcode==4'b0110) begin
             // beq
-            OP2_MUX <= 1'b0;
             BEQ_MUX <= 1'b0;
+            SILENCE_MUX <= 1'b1;
+            silence_op <= 1'b1; 
             //== 
             ALU_cmd <= 3'b111;
         end else if (opcode==4'b0111) begin
@@ -227,7 +230,9 @@ always @(posedge clk or negedge rst) begin
             JUMP_MUX <= 1'b1; 
             WB_MUX <= 1'b1;
             wb_wr <= 1'b1;
-            wb_waddr <= 4'hF;
+            wb_waddr <= 4'hF; // $ra
+            SILENCE_MUX <= 1'b1;
+            silence_op <= 1'b1;
         end
 
 
