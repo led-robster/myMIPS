@@ -25,7 +25,7 @@ always @(posedge clk ) begin
         REG_BANK[addr_rd] <= wdata;
     end
     if (clear==1'b1) begin
-        for (i_loop=0 ;i_loop<(1<<AWIDTH) ;i_loop++ ) begin
+        for (i_loop=0 ;i_loop<(1<<AWIDTH) ;i_loop=i_loop+1 ) begin
             REG_BANK[i_loop] <= {16{1'b0}};
         end
     end

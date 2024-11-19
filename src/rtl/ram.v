@@ -1,6 +1,6 @@
 
 
-module moduleName #(
+module ram #(
     parameter AWIDTH = 8,
     parameter DWIDTH = 16
 ) (
@@ -20,7 +20,7 @@ module moduleName #(
 
     always @(posedge clk or negedge rst) begin
         if (!rst) begin
-            for (i=0; i<(1 <<(AWIDTH)); i++) begin
+            for (i=0; i<(1 <<(AWIDTH)); i = i+1) begin
                 RAM[i] <= {DWIDTH{1'b1}};
             end
         end else if (i_rd==1'b1) begin
