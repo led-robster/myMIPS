@@ -11,14 +11,14 @@ Based on MIPS instruction set.
 ## PLATFORM
 source: Verilog & SystemVerilog
 ### BUILD1
-compilation: `iverilog`
-linker + simulation: `iverilog`
-inspection: `gtkwave`
+compilation: `iverilog`  
+linker + simulation: `iverilog`  
+inspection: `gtkwave`  
 
 ### BUILD 2
-compilation: `modelsim`
-linker + simulation: `modelsim` (**vsim**)
-inspection: `modelsim`\`gtkwave`
+compilation: `modelsim` (**vlog**)
+linker + simulation: `modelsim` (**vsim**)  
+inspection: `modelsim`\`gtkwave`  
 
 ### VERSIONS
 
