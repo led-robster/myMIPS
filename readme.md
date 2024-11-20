@@ -16,9 +16,9 @@ linker + simulation: `iverilog`
 inspection: `gtkwave`  
 
 ### BUILD 2
-compilation: `modelsim` (**vlog**)
-linker + simulation: `modelsim` (**vsim**)  
-inspection: `modelsim`\`gtkwave`  
+compilation: `modelsim` (**vlog**)  
+linker + simulation: `modelsim` (**vsim**)    
+inspection: `modelsim`\`gtkwave`    
 
 ### VERSIONS
 
