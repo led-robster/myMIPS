@@ -8,6 +8,25 @@ Based on MIPS instruction set.
 [] run on FPGA  
 [] integrate in a system with IO, display, sound, ...  
 
+## PLATFORM
+source: Verilog & SystemVerilog
+### BUILD1
+compilation: `iverilog`
+linker + simulation: `iverilog`
+inspection: `gtkwave`
+
+### BUILD 2
+compilation: `modelsim`
+linker + simulation: `modelsim` (**vsim**)
+inspection: `modelsim`\`gtkwave`
+
+### VERSIONS
+
+Modelsim: 10.5c
+UVM library:
+GTKWave:
+iverilog:
+
 ## FUTURE 🔮
 
 > RISC-v  
