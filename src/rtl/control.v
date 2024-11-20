@@ -28,7 +28,7 @@ module control (
     output reg SILENCE_MUX
 );
 
-reg state;
+reg[3:0] state;
 parameter [3:0] BOOT                = 4'b0000,
                 INSTRUCTION_FETCH   = 4'b0001,
                 INSTRUCTION_DECODE  = 4'b0010,
@@ -51,6 +51,7 @@ reg jump, jump_d, jump_dd;
 reg memory_op, memory_op_d, memory_op_dd;
 reg shamt_d;
 reg wb_wr; // write-back write in regfile 
+reg[3:0] wb_waddr;
 reg silence_op, silence_d, silence_dd, silence_ddd; // 1: silence_on, 0: silence_off
 
 
@@ -70,11 +71,11 @@ always @(posedge clk or negedge rst) begin
 
     if (!rst) begin
 
-        rom_rd <= '0';
+        rom_rd <= 1'b0;
 
     end else begin 
 
-        rom_rd <= '1';
+        rom_rd <= 1'b1;
 
     end
 
@@ -236,169 +237,11 @@ always @(posedge clk or negedge rst) begin
         end
 
 
-        if silence_ddd==1'b1 begin
+        if (silence_ddd==1'b1) begin
             SILENCE_MUX <= 1'b0;
         end
 
     end
-
-end
-
-
-always @(posedge clk or negedge rst) begin
-    if (!rst) begin
-        state <= BOOT;
-        instruction <= 0;
-        jump <= 0;
-        memory_op <= 1'b0;
-    end else begin
-
-        // defaults/triggers
-        rd_rs  <= 1'b0;
-        rom_rd  <= 1'b0;
-        rd_rt  <= 1'b0;
-        ram_rd  <= 1'b0;
-        ram_wr  <= 1'b0;
-        jump    <= 1'b0;
-        memory_op <= 1'b0;
-
-        // delays
-        jump_d <= jump;
-        jump_dd <= jump_d;
-        memory_op_d <= memory_op;
-        memory_op_dd <= memory_op_d;
-
-        
-
-        case (state)
-            BOOT:
-                state <= INSTRUCTION_FETCH; 
-            
-            INSTRUCTION_FETCH:
-                instruction <= ROM_data;
-                state <= INSTRUCTION_DECODE;
-
-            INSTRUCTION_DECODE:
-                if (opcode==0) begin
-                    // R-format
-                    if (Fcode==0) begin
-                        // add
-                        rd_rs <= 1'b1;
-                        rd_rt <= 1'b1;
-                        OP2_MUX <= 1'b0;
-                        //
-                        ALU_cmd <= 3'b000;
-                    end else if (Fcode==1) begin
-                        // subtract
-                        rd_rs <= 1'b1;
-                        rd_rt <= 1'b1;
-                        OP2_MUX <= 1'b0;
-                        //
-                        ALU_cmd <= 3'b001;
-                    end else if (Fcode==2) begin
-                        // and
-                        rd_rs <= 1'b1;
-                        rd_rt <= 1'b1;
-                        OP2_MUX <= 1'b0;
-                        //
-                        ALU_cmd <= 3'b101;
-                    end else if (Fcode==3) begin
-                        // or
-                        rd_rs <= 1'b1;
-                        rd_rt <= 1'b1;
-                        OP2_MUX <= 1'b0;
-                        //
-                        ALU_cmd <= 3'b110;
-                    end else if (Fcode==4) begin
-                        // slt
-                        rd_rs <= 1'b1;
-                        rd_rt <= 1'b1;
-                        OP2_MUX <= 1'b0;
-                        //
-                        ALU_cmd <= 3'b011;
-                    end else if (Fcode==5) begin
-                        // sll
-                        rd_rs <= 1'b1;
-                        OP2_MUX <= 1'b1;
-                        //
-                        ALU_cmd <= 3'b010;
-                    end else if (Fcode==6) begin
-                        // srl
-                        rd_rs <= 1'b1;
-                        OP2_MUX <= 1'b1;
-                        //
-                        ALU_cmd <= 3'b010;
-                    end else if (Fcode==7) begin
-                        // jr
-                        rd_rs <= 1'b1;
-                        rd_rt <= 1'b0; // require $0
-                        OP2_MUX <= 1'b0;
-                        // add operation
-                        ALU_cmd <= 3'b000;
-                        //
-                        jump <= 1'b1;
-                    end
-                end else if (opcode==4'b0001) begin
-                    // addi
-                    rd_rs <= 1'b1;
-                    OP2_MUX <= 1'b1;
-                    //
-                    ALU_cmd <= 1'b0;
-                end else if (opcode==4'b0011) begin
-                    // slti
-                    rd_rs <= 1'b1;
-                    OP2_MUX <= 1'b1;
-                    // >
-                    ALU_cmd <= 3'b011;
-                end else if (opcode==4'b0100) begin
-                    // lw
-                    rd_rs <= 1'b1;
-                    OP2_MUX <= 1'b1;
-                    // +
-                    ALU_cmd <= 3'b000;
-                    //
-                    memory_op <= 1'b1;
-                end else if (opcode==4'b0101) begin
-                    // sw
-                    rd_rs 
-                end else if (opcode==4'b0110) begin
-                    // beq
-
-                end else if (opcode==4'b0111) begin
-                    // j
-
-                end else if (opcode==4'b1000) begin
-                    // jal
-
-                end
-                //
-                state <= EXECUTE;
-
-            
-            EXECUTE:
-                //
-                state <= MEMORY_ACCESS;
-
-
-            MEMORY_ACCESS:
-                //
-                state <= WRITE_BACK;
-
-            WRITE_BACK:
-                //
-                state <= INSTRUCTION_FETCH;
-
-
-            default: 
-        endcase
-
-
-
-    end
-
-
-
-
 
 end
 

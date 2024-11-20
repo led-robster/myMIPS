@@ -9,7 +9,7 @@ modelsim_dir = C:\Microsemi\Libero_SoC_v11.9\ModelsimPro\win32acoem
 source_library := ram.v regfile.v rom.v alu.v carry_lookahead.v small_lookahead.v partial_FA.v
 # every source prefixed by parent dir
 source_library_path := $(addprefix $(rtl_dir)/, $(source_library))
-simulation_library := $(tb_dir)/tb.v $(tb_dir)/tb_alu.v
+simulation_library := $(tb_dir)/tb.v $(tb_dir)/tb_alu.sv
 
 # Timestamp file to track compilation
 compiled_file := $(tb_dir)/my_design.vvp
