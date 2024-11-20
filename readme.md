@@ -22,10 +22,10 @@ inspection: `modelsim`\`gtkwave`
 
 ### VERSIONS
 
-Modelsim: 10.5c
-UVM library:
-GTKWave:
-iverilog:
+Modelsim: 10.5c  
+UVM library:  
+GTKWave:  
+iverilog:  
 
 ## FUTURE 🔮
 
