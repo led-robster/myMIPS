@@ -14,6 +14,10 @@ reg[15:0] cl_A, cl_B;
 wire[15:0] cl_C;
 reg cl_Ci;
 
+wire signed[15:0] s_op1, s_op2;
+assign s_op1 = OP1;
+assign s_op2 = OP2;
+
 carry_lookahead CL (.A(cl_A), .B(cl_B), .Ci(cl_Ci), .C(cl_C), .ovF(ovF));
 
 
@@ -39,7 +43,7 @@ always @(*) begin
         RES = OP1 << OP2;
     end else if (cmd==3'b011) begin
         // >
-        if (OP1>OP2) begin
+        if (s_op1>s_op2) begin
             RES = 16'd1;
         end else begin
             RES = 16'd0;
