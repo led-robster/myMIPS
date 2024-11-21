@@ -21,7 +21,7 @@ always @(posedge clk ) begin
 end
 
 initial begin
-    $readmemh("../mem/program.mem", ROM);
+    $readmemh("../src/mem/program.mem", ROM);
 end 
     
 endmodule
