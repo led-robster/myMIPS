@@ -10,6 +10,8 @@ integer fd, flog;
 reg[7:0] stored_addr;
 reg[15:0] stored_data;
 
+integer i_loop=0;
+
 // RAM connections
 reg ram_rst=0;
 reg ram_rd=0, ram_wr=0;
@@ -48,9 +50,10 @@ initial begin
     
     ram_rst = 1;
 
-    while ($fscanf(fd, "address=0x%0x data=0x%0x", stored_addr, stored_data)>0) begin
+    while ($fscanf(fd, "address=0x%0x data=0x%0x\n", stored_addr, stored_data)>0) begin
         ram_wr <= 1'b1;
         ram_waddr <= stored_addr;
+        ram_wdata <= stored_data;
         @(posedge clk);
         ram_wr <= 1'b0;
         @(posedge clk);
@@ -65,7 +68,12 @@ initial begin
         end else begin
             $fwrite(flog, "❌\n");
         end
+        i_loop += 1;
     end
+    
+
+    $fclose(fd);
+    $fclose(flog);
 
     $finish;
     

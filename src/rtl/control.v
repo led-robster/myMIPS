@@ -25,7 +25,8 @@ module control (
     output reg BEQ_MUX,
     output reg JUMP_MUX,
     output reg WB_MUX,
-    output reg SILENCE_MUX
+    output reg SILENCE_MUX,
+    output reg SAVE_PC_MUX
 );
 
 reg[3:0] state;
@@ -233,7 +234,8 @@ always @(posedge clk or negedge rst) begin
             wb_wr <= 1'b1;
             wb_waddr <= 4'hF; // $ra
             SILENCE_MUX <= 1'b1;
-            silence_op <= 1'b1;
+            silence_op <= 1'b1; 
+            SAVE_PC_MUX <= 1'b1;
         end
 
 

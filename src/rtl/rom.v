@@ -1,7 +1,7 @@
 
-
-module rom
-(
+module rom #(
+    parameter AWIDTH = 8
+) (
     input clk,
     input i_rd,
     input [7:0] i_raddr,
@@ -9,7 +9,7 @@ module rom
 );
 
 
-reg [15:0] ROM [0:(1<<8)-1];
+reg [15:0] ROM [0:(1<<AWIDTH)-1];
 
 
 always @(posedge clk ) begin

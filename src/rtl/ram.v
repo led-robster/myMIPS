@@ -20,13 +20,9 @@ module ram #(
 
     always @(posedge clk or negedge rst) begin
         if (!rst) begin
-            for (i=0; i<(1 <<(AWIDTH)); i = i+1) begin
-                RAM[i] <= {DWIDTH{1'b1}};
-            end
+            o_rdata <= {DWIDTH{1'b1}};
         end else if (i_rd==1'b1) begin
-            o_rdata <= RAM[i_raddr]; 
-        end else if (i_rd==1'b0) begin
-            o_rdata <= 0;
+            o_rdata <= RAM[i_raddr];
         end else if (i_wr==1'b1) begin
             RAM[i_waddr] <= i_wdata;
         end
