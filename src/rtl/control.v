@@ -1,6 +1,8 @@
 
 
-module control (
+module control #(
+    parameter RST_POLARITY = 1'b0
+) (
     input clk,
     input rst,
     // ROM
@@ -12,9 +14,14 @@ module control (
     // REGFILE
     output reg rd_rs,
     output reg rd_rt,
-    output addr_rs,
-    output addr_rt,
+    output[3:0] addr_rs,
+    output[3:0] addr_rt,
+    output[3:0] addr_rd,
+    output reg[3:0] wb_waddr,
     output reg wr_rd,
+    //
+    output[5:0] immediate,
+    output[2:0] shamt,
     // ALU
     output reg[2:0] ALU_cmd,
     // MUXes
@@ -41,8 +48,7 @@ parameter [3:0] BOOT                = 4'b0000,
 wire[2:0] Fcode;
 wire[3:0] opcode;
 wire[2:0] rs,rt,rd;
-wire[5:0] immediate;
-wire[2:0] shamt;
+reg[2:0] rd;
 wire[5:0] offset;
 wire[11:0] address;
 
@@ -52,7 +58,6 @@ reg jump, jump_d, jump_dd;
 reg memory_op, memory_op_d, memory_op_dd;
 reg shamt_d;
 reg wb_wr; // write-back write in regfile 
-reg[3:0] wb_waddr;
 reg silence_op, silence_d, silence_dd, silence_ddd; // 1: silence_on, 0: silence_off
 
 
@@ -60,7 +65,7 @@ assign Fcode = instruction[2:0];
 assign opcode = instruction[15:12];
 assign rs = instruction[11:9];
 assign rt = instruction[8:6];
-assign rd = instruction[5:3];
+//assign rd = instruction[5:3];
 assign immediate = instruction[5:0];
 assign shamt = instruction[5:3];
 assign offset = instruction[5:0];
@@ -68,34 +73,39 @@ assign address = instruction[11:0];
 
 
 // instruction fetch process
-always @(posedge clk or negedge rst) begin
+always @(posedge clk or posedge rst or negedge rst) begin
 
-    if (!rst) begin
+    if (rst==RST_POLARITY) begin
 
         rom_rd <= 1'b0;
 
-    end else begin 
+    end else begin
 
-        rom_rd <= 1'b1;
+        if (posedge clk) begin
+            rom_rd <= 1'b1; 
+        end
 
     end
 
 end
 
 always @(posedge clk or negedge rst) begin
-    if (!rst) begin
+    if (rst==RST_POLARITY) begin
         rd_rs <= 1'b0;
         rd_rt <= 1'b0;
     end else begin
-        // always reading source registers
-        rd_rs <= 1'b1;
-        rd_rt <= 1'b1; 
+        if (posedge clk) begin
+            // always reading source registers
+            rd_rs <= 1'b1;
+            rd_rt <= 1'b1;                 
+        end
     end
 end
 
 assign instruction = ROM_data;
-assign addr_rs = instruction[11:9];
-assign addr_rt = instruction[8:6];
+assign addr_rs = {1'b0, instruction[11:9]};
+assign addr_rt = {1'b0, instruction[8:6]};
+assign addr_rd = {1'b0, instruction[5:3]};
 
 // PIPELINE IS EXTERNAL.
 // shamt 1cc pipeline. shamt can arrive to EXECUTE.
@@ -110,7 +120,7 @@ assign addr_rt = instruction[8:6];
 // DECODE process
 always @(posedge clk or negedge rst) begin
 
-    if (!rst) begin
+    if (rst==RST_POLARITY) begin
 
         OP2_MUX         <= 1'b0;
         ALU_cmd         <= 3'b000;
@@ -118,132 +128,135 @@ always @(posedge clk or negedge rst) begin
         memory_op       <= 1'b0;
         SHAMT_IMM_MUX   <= 1'b0;
 
-    end else begin 
+    end else begin
+        if (posedge clk) begin
+            // default
+            SHAMT_IMM_MUX   <= 1'b0;
+            RES_MUX         <= 1'b1;
+            OP2_MUX         <= 1'b0;
+            PC_MUX          <= 1'b1;
+            JUMP_MUX        <= 1'b0;
+            BEQ_MUX         <= 1'b1;
+            WB_MUX          <= 1'b0;
+            ram_rd          <= 1'b0;
+            ram_wr          <= 1'b0;
+            wb_wr           <= 1'b0;
+            silence_op      <= 1'b0;
 
-        // default
-        SHAMT_IMM_MUX   <= 1'b0;
-        RES_MUX         <= 1'b1;
-        OP2_MUX         <= 1'b0;
-        PC_MUX          <= 1'b1;
-        JUMP_MUX        <= 1'b0;
-        BEQ_MUX         <= 1'b1;
-        WB_MUX          <= 1'b0;
-        ram_rd          <= 1'b0;
-        ram_wr          <= 1'b0;
-        wb_wr           <= 1'b0;
-        silence_op      <= 1'b0;
+            // silence_op HIGH @EXECUTE, silence_d HIGH @MA, silence_dd HIGH @WRITEBACK
+            silence_d <= silence_op;
+            silence_dd <= silence_d;
+            silence_ddd <= silence_dd;
 
-        // silence_op HIGH @EXECUTE, silence_d HIGH @MA, silence_dd HIGH @WRITEBACK
-        silence_d <= silence_op;
-        silence_dd <= silence_d;
-        silence_ddd <= silence_dd;
-
-        if (opcode==0) begin
-            // R-format
-            if (Fcode==0) begin
-                // add
-                OP2_MUX <= 1'b0;
-                //
+            if (opcode==0) begin
+                // R-format
+                if (Fcode==0) begin
+                    // add
+                    OP2_MUX <= 1'b0;
+                    //
+                    ALU_cmd <= 3'b000;
+                end else if (Fcode==1) begin 
+                    // subtract
+                    OP2_MUX <= 1'b0;
+                    //
+                    ALU_cmd <= 3'b001;
+                end else if (Fcode==2) begin
+                    // and
+                    OP2_MUX <= 1'b0;
+                    //
+                    ALU_cmd <= 3'b101;
+                end else if (Fcode==3) begin
+                    // or
+                    OP2_MUX <= 1'b0;
+                    //
+                    ALU_cmd <= 3'b110;
+                end else if (Fcode==4) begin
+                    // slt 
+                    OP2_MUX <= 1'b0;
+                    //
+                    ALU_cmd <= 3'b011;
+                end else if (Fcode==5) begin
+                    // sll
+                    OP2_MUX <= 1'b1;
+                    SHAMT_IMM_MUX <= 1'b1;
+                    //
+                    ALU_cmd <= 3'b010;
+                end else if (Fcode==6) begin
+                    // srl
+                    OP2_MUX <= 1'b1;
+                    SHAMT_IMM_MUX <= 1'b1;
+                    //
+                    ALU_cmd <= 3'b100;
+                end else if (Fcode==7) begin
+                    // jr
+                    OP2_MUX <= 1'b0; // read $r0
+                    // add operation
+                    ALU_cmd <= 3'b000;
+                    //
+                    JUMP_MUX <= 1'b1;
+                end
+            end else if (opcode==4'b0001) begin
+                // addi
+                OP2_MUX <= 1'b1;
+                wb_wr <= 1'b1;
+                // +
                 ALU_cmd <= 3'b000;
-            end else if (Fcode==1) begin 
-                // subtract
-                OP2_MUX <= 1'b0;
-                //
-                ALU_cmd <= 3'b001;
-            end else if (Fcode==2) begin
-                // and
-                OP2_MUX <= 1'b0;
-                //
-                ALU_cmd <= 3'b101;
-            end else if (Fcode==3) begin
-                // or
-                OP2_MUX <= 1'b0;
-                //
-                ALU_cmd <= 3'b110;
-            end else if (Fcode==4) begin
-                // slt 
-                OP2_MUX <= 1'b0;
-                //
+            end else if (opcode==4'b0011) begin
+                // slti
+                OP2_MUX <= 1'b1;
+                wb_wr <= 1'b1;
+                // >
                 ALU_cmd <= 3'b011;
-            end else if (Fcode==5) begin
-                // sll
+            end else if (opcode==4'b0100) begin
+                // lw
                 OP2_MUX <= 1'b1;
-                SHAMT_IMM_MUX <= 1'b1;
-                //
-                ALU_cmd <= 3'b010;
-            end else if (Fcode==6) begin
-                // srl
-                OP2_MUX <= 1'b1;
-                SHAMT_IMM_MUX <= 1'b1;
-                //
-                ALU_cmd <= 3'b100;
-            end else if (Fcode==7) begin
-                // jr
-                OP2_MUX <= 1'b0; // read $r0
-                // add operation
+                ram_rd <= 1'b1;
+                RES_MUX <= 1'b0;
+                wb_wr <= 1'b1;
+                // +
                 ALU_cmd <= 3'b000;
-                //
+            end else if (opcode==4'b0101) begin
+                // sw
+                OP2_MUX <= 1'b1;
+                ram_wr <= 1'b1; 
+                // +
+                ALU_cmd <= 3'b000;
+            end else if (opcode==4'b0110) begin
+                // beq
+                BEQ_MUX <= 1'b0;
+                SILENCE_MUX <= 1'b1;
+                silence_op <= 1'b1; 
+                //== 
+                ALU_cmd <= 3'b111;
+            end else if (opcode==4'b0111) begin
+                // j
+                OP2_MUX <= 1'b1; 
                 JUMP_MUX <= 1'b1;
+                silence_op <= 1'b1;
+                SILENCE_MUX <= 1'b1;
+                // + , 0+imm
+                ALU_cmd <= 3'b000;
+            end else if (opcode==4'b1000) begin
+                // jal
+                OP2_MUX <= 1'b1;
+                JUMP_MUX <= 1'b1; 
+                WB_MUX <= 1'b1;
+                wb_wr <= 1'b1;
+                wb_waddr <= 4'b1111;// $ra
+                SILENCE_MUX <= 1'b1;
+                silence_op <= 1'b1; 
+                SAVE_PC_MUX <= 1'b1;
             end
-        end else if (opcode==4'b0001) begin
-            // addi
-            OP2_MUX <= 1'b1;
-            wb_wr <= 1'b1;
-            // +
-            ALU_cmd <= 3'b000;
-        end else if (opcode==4'b0011) begin
-            // slti
-            OP2_MUX <= 1'b1;
-            wb_wr <= 1'b1;
-            // >
-            ALU_cmd <= 3'b011;
-        end else if (opcode==4'b0100) begin
-            // lw
-            OP2_MUX <= 1'b1;
-            ram_rd <= 1'b1;
-            RES_MUX <= 1'b0;
-            wb_wr <= 1'b1;
-            // +
-            ALU_cmd <= 3'b000;
-         end else if (opcode==4'b0101) begin
-            // sw
-            OP2_MUX <= 1'b1;
-            ram_wr <= 1'b1; 
-            // +
-            ALU_cmd <= 3'b000;
-        end else if (opcode==4'b0110) begin
-            // beq
-            BEQ_MUX <= 1'b0;
-            SILENCE_MUX <= 1'b1;
-            silence_op <= 1'b1; 
-            //== 
-            ALU_cmd <= 3'b111;
-        end else if (opcode==4'b0111) begin
-            // j
-            OP2_MUX <= 1'b1; 
-            JUMP_MUX <= 1'b1;
-            silence_op <= 1'b1;
-            SILENCE_MUX <= 1'b1;
-            // + , 0+imm
-            ALU_cmd <= 3'b000;
-        end else if (opcode==4'b1000) begin
-            // jal
-            OP2_MUX <= 1'b1;
-            JUMP_MUX <= 1'b1; 
-            WB_MUX <= 1'b1;
-            wb_wr <= 1'b1;
-            wb_waddr <= 4'hF; // $ra
-            SILENCE_MUX <= 1'b1;
-            silence_op <= 1'b1; 
-            SAVE_PC_MUX <= 1'b1;
+
+
+            if (silence_ddd==1'b1) begin
+                SILENCE_MUX <= 1'b0;
+            end
+
         end
-
-
-        if (silence_ddd==1'b1) begin
-            SILENCE_MUX <= 1'b0;
-        end
-
     end
+
+        
 
 end
 
