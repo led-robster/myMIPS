@@ -13,9 +13,9 @@ module tb;
     always #10 clk = ~clk;
 
     initial begin
-        #50 rd <= 1;
-            raddr <= 8'd1;
-        #20 rd <= 0;
+        ext_rst <= 0;
+        #50 ext_rst <= 1;
+        #20 
         #200 $finish;
     end
 

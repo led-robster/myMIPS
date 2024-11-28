@@ -1,4 +1,4 @@
-
+// TODO : yo bro fix Immediate fmt , you messed up with rs/rt/rd
 
 module control #(
     parameter RST_POLARITY = 1'b0
@@ -47,7 +47,7 @@ parameter [3:0] BOOT                = 4'b0000,
 
 wire[2:0] Fcode;
 wire[3:0] opcode;
-wire[2:0] rs,rt,rd;
+wire[2:0] rs,rt;
 reg[2:0] rd;
 wire[5:0] offset;
 wire[11:0] address;
@@ -81,9 +81,7 @@ always @(posedge clk or posedge rst or negedge rst) begin
 
     end else begin
 
-        if (posedge clk) begin
-            rom_rd <= 1'b1; 
-        end
+        rom_rd <= 1'b1; 
 
     end
 
@@ -94,11 +92,11 @@ always @(posedge clk or negedge rst) begin
         rd_rs <= 1'b0;
         rd_rt <= 1'b0;
     end else begin
-        if (posedge clk) begin
-            // always reading source registers
-            rd_rs <= 1'b1;
-            rd_rt <= 1'b1;                 
-        end
+
+        // always reading source registers
+        rd_rs <= 1'b1;
+        rd_rt <= 1'b1;                 
+
     end
 end
 
@@ -129,7 +127,7 @@ always @(posedge clk or negedge rst) begin
         SHAMT_IMM_MUX   <= 1'b0;
 
     end else begin
-        if (posedge clk) begin
+
             // default
             SHAMT_IMM_MUX   <= 1'b0;
             RES_MUX         <= 1'b1;
@@ -199,6 +197,8 @@ always @(posedge clk or negedge rst) begin
                 // addi
                 OP2_MUX <= 1'b1;
                 wb_wr <= 1'b1;
+                wb_waddr <= rs;
+                WB_MUX <= 1'b1;
                 // +
                 ALU_cmd <= 3'b000;
             end else if (opcode==4'b0011) begin
@@ -253,7 +253,7 @@ always @(posedge clk or negedge rst) begin
                 SILENCE_MUX <= 1'b0;
             end
 
-        end
+
     end
 
         

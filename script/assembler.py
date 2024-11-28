@@ -191,7 +191,7 @@ def main():
             line_bin = Opcode_bin+rs_bin+rt_bin+rd_bin+Fcode_bin
 
         elif opcode in I_ops:
-            rd = not_opcode[0]
+            rs = not_opcode[0]
             rt = not_opcode[1]
             immediate = not_opcode[2]
             immediate_int = integer_it(immediate)
@@ -222,6 +222,9 @@ def main():
             exit
 
         fw.write(line_bin+'\n')
+
+        fw.close()
+        fh.close()
 
     return
 

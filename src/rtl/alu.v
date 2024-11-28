@@ -5,7 +5,7 @@ module alu (
     input[15:0] OP2,
     input[2:0] cmd,
     output reg[15:0] RES,
-    output eq_bit,
+    output reg eq_bit,
     output ovF
 );
 
@@ -24,6 +24,7 @@ carry_lookahead CL (.A(cl_A), .B(cl_B), .Ci(cl_Ci), .C(cl_C), .ovF(ovF));
 always @(*) begin
 
     cl_A = 16'd0;
+    eq_bit <= 1'b0;
 
     if (cmd==3'b000) begin
         // +
@@ -61,8 +62,10 @@ always @(*) begin
         // ==
         if (OP1==OP2) begin
             RES = 16'd1;
+            eq_bit <= 1'b1;
         end else begin
             RES = 16'd0;
+            eq_bit <= 1'b0;
         end
     end
 
