@@ -1,7 +1,7 @@
 // TODO : yo bro fix Immediate fmt , you messed up with rs/rt/rd
 
 module control #(
-    parameter RST_POLARITY = 1'b0
+    parameter RST_POL = 1'b0
 ) (
     input clk,
     input rst,
@@ -18,10 +18,10 @@ module control #(
     output[3:0] addr_rt,
     output[3:0] addr_rd,
     output reg[3:0] wb_waddr,
-    output reg wr_rd,
+    output wr_rd,
     //
-    output[5:0] immediate,
-    output[2:0] shamt,
+    output [5:0] immediate,
+    output [2:0] shamt,
     // ALU
     output reg[2:0] ALU_cmd,
     // MUXes
@@ -70,12 +70,13 @@ assign immediate = instruction[5:0];
 assign shamt = instruction[5:3];
 assign offset = instruction[5:0];
 assign address = instruction[11:0];
+assign wr_rd = wb_wr;
 
 
 // instruction fetch process
 always @(posedge clk or posedge rst or negedge rst) begin
 
-    if (rst==RST_POLARITY) begin
+    if (rst==RST_POL) begin
 
         rom_rd <= 1'b0;
 
@@ -88,7 +89,7 @@ always @(posedge clk or posedge rst or negedge rst) begin
 end
 
 always @(posedge clk or negedge rst) begin
-    if (rst==RST_POLARITY) begin
+    if (rst==RST_POL) begin
         rd_rs <= 1'b0;
         rd_rt <= 1'b0;
     end else begin
@@ -118,13 +119,14 @@ assign addr_rd = {1'b0, instruction[5:3]};
 // DECODE process
 always @(posedge clk or negedge rst) begin
 
-    if (rst==RST_POLARITY) begin
+    if (rst==RST_POL) begin
 
         OP2_MUX         <= 1'b0;
         ALU_cmd         <= 3'b000;
         jump            <= 1'b0;
         memory_op       <= 1'b0;
         SHAMT_IMM_MUX   <= 1'b0;
+        SAVE_PC_MUX     <= 1'b0;
 
     end else begin
 
@@ -136,6 +138,7 @@ always @(posedge clk or negedge rst) begin
             JUMP_MUX        <= 1'b0;
             BEQ_MUX         <= 1'b1;
             WB_MUX          <= 1'b0;
+            SAVE_PC_MUX     <= 1'b0;
             ram_rd          <= 1'b0;
             ram_wr          <= 1'b0;
             wb_wr           <= 1'b0;

@@ -1,4 +1,4 @@
-
+`timescale 1ns/1ps
 
 module tb;
     
@@ -8,15 +8,18 @@ module tb;
     reg[7:0] raddr = 8'd0;
     wire[15:0] rdata;
 
+    wire int_rst;
+
+
     top top(.clk(clk), .ext_rst(ext_rst));
 
-    always #10 clk = ~clk;
+    always #12.5 clk = ~clk;
 
     initial begin
         ext_rst <= 0;
-        #50 ext_rst <= 1;
+        #70 ext_rst <= 1;
         #20 
-        #200 $finish;
+        #40000000 $finish;
     end
 
 
