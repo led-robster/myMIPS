@@ -223,8 +223,8 @@ def main():
 
         fw.write(line_bin+'\n')
 
-        fw.close()
-        fh.close()
+    fw.close()
+    fh.close()
 
     return
 

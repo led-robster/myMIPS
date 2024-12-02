@@ -87,6 +87,8 @@ the opcode for R-format instructions is 0x0 except for mfc0 (but why?).
 |Iformat|opcode|rs|rt|offset/immediate||load,store,imnmediate ALU,beq,bne|
 |Jformat|opcode|target address||||Jump,jump and link|
 
+Rformat : ALU(rs,rt) e il risultato viene scritto in rd.
+
 > IMPLICATIONS: the J format can address 12-bit target addresses (proper concatenation has to be applied). The 'jr' instruction can address $rx which is a 16-bit address.
 
 |name|format|Bits 15-12|Bits 11-9|Bits 8-6|Bits 5-3|Bits 2-0|desc|

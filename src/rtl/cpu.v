@@ -125,9 +125,9 @@ assign shamt_imm_mux_out = mux_shamt_imm ? shamt_d : imm_d;
 assign op2_mux_out = mux_op2 ? shamt_imm_mux_out : rt;
 assign res_mux_out = mux_res_dd ? alu_res_d : ram_rdata;
 assign save_pc_mux_out = mux_save_pc_dd ? PC_ddd : res_mux_out;
-assign beq_mux_out = (alu_eqbit_dd) ? (offset_ddd<<1 + 2) : pc_mux_out;
+assign beq_mux_out = (alu_eqbit_dd) ? (offset_ddd + 1) : pc_mux_out;
 assign jump_mux_out = mux_jump_dd ? res_mux_out : pc_incr_out;
-assign pc_mux_out = (mux_pc_dd) ? 2 : 0;
+assign pc_mux_out = (mux_pc_dd) ? 1 : 0;
 
 // combinatorial nets
 assign pc_incr_out = PC + beq_mux_out;

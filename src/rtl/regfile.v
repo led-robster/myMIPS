@@ -1,4 +1,4 @@
-
+// write first half of T_clk , read second half of T_clk
 
 module regfile #(
     parameter AWIDTH = 8
@@ -32,7 +32,7 @@ always @(posedge clk ) begin
 end
 
 
-always @(posedge clk ) begin
+always @(negedge clk ) begin
     if (req_rs==1'b1) begin
         rs <= REG_BANK[addr_rs];
     end

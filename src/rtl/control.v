@@ -149,8 +149,11 @@ always @(posedge clk or negedge rst) begin
             silence_dd <= silence_d;
             silence_ddd <= silence_dd;
 
+            
+
             if (opcode==0) begin
                 // R-format
+                
                 if (Fcode==0) begin
                     // add
                     OP2_MUX <= 1'b0;
