@@ -1,3 +1,6 @@
 build/*
 !build/readme.md
 !build/Makefile
+
+src/rtl/*
+!src/rtl/*.v
