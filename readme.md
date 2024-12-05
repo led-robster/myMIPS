@@ -18,7 +18,7 @@ inspection: `gtkwave`
 ### BUILD 2
 compilation: `modelsim` (**vlog**)  
 linker + simulation: `modelsim` (**vsim**)    
-inspection: `modelsim`\`gtkwave`    
+inspection: `modelsim` or `gtkwave`    
 
 ### VERSIONS
 
