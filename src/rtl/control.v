@@ -117,7 +117,7 @@ assign addr_rd = {1'b0, instruction[5:3]};
 // end
 
 // DECODE process
-always @(posedge clk or negedge rst) begin
+always @(posedge clk or rst) begin
 
     if (rst==RST_POL) begin
 
@@ -127,8 +127,9 @@ always @(posedge clk or negedge rst) begin
         memory_op       <= 1'b0;
         SHAMT_IMM_MUX   <= 1'b0;
         SAVE_PC_MUX     <= 1'b0;
+        wb_wr           <= 1'b0;
 
-    end else begin
+    end else if (clk) begin
 
             // default
             SHAMT_IMM_MUX   <= 1'b0;
@@ -150,45 +151,51 @@ always @(posedge clk or negedge rst) begin
             silence_ddd <= silence_dd;
 
             
-
             if (opcode==0) begin
                 // R-format
                 
                 if (Fcode==0) begin
                     // add
                     OP2_MUX <= 1'b0;
+                    wb_wr <= 1'b1;
                     //
                     ALU_cmd <= 3'b000;
                 end else if (Fcode==1) begin 
                     // subtract
                     OP2_MUX <= 1'b0;
+                    wb_wr <= 1'b1;
                     //
                     ALU_cmd <= 3'b001;
                 end else if (Fcode==2) begin
                     // and
                     OP2_MUX <= 1'b0;
+                    wb_wr <= 1'b1;
                     //
                     ALU_cmd <= 3'b101;
                 end else if (Fcode==3) begin
                     // or
                     OP2_MUX <= 1'b0;
+                    wb_wr <= 1'b1;
                     //
                     ALU_cmd <= 3'b110;
                 end else if (Fcode==4) begin
                     // slt 
                     OP2_MUX <= 1'b0;
+                    wb_wr <= 1'b1;
                     //
                     ALU_cmd <= 3'b011;
                 end else if (Fcode==5) begin
                     // sll
                     OP2_MUX <= 1'b1;
                     SHAMT_IMM_MUX <= 1'b1;
+                    wb_wr <= 1'b1;
                     //
                     ALU_cmd <= 3'b010;
                 end else if (Fcode==6) begin
                     // srl
                     OP2_MUX <= 1'b1;
                     SHAMT_IMM_MUX <= 1'b1;
+                    wb_wr <= 1'b1;
                     //
                     ALU_cmd <= 3'b100;
                 end else if (Fcode==7) begin
@@ -211,6 +218,8 @@ always @(posedge clk or negedge rst) begin
                 // slti
                 OP2_MUX <= 1'b1;
                 wb_wr <= 1'b1;
+                wb_waddr <= rs;
+                WB_MUX <= 1'b1;
                 // >
                 ALU_cmd <= 3'b011;
             end else if (opcode==4'b0100) begin
@@ -219,6 +228,8 @@ always @(posedge clk or negedge rst) begin
                 ram_rd <= 1'b1;
                 RES_MUX <= 1'b0;
                 wb_wr <= 1'b1;
+                wb_waddr <= rt;
+                WB_MUX <= 1'b1;
                 // +
                 ALU_cmd <= 3'b000;
             end else if (opcode==4'b0101) begin
@@ -259,6 +270,23 @@ always @(posedge clk or negedge rst) begin
                 SILENCE_MUX <= 1'b0;
             end
 
+
+            // handle null instruction
+            if (instruction==0) begin
+                // default
+                SHAMT_IMM_MUX   <= 1'b0;
+                RES_MUX         <= 1'b1;
+                OP2_MUX         <= 1'b0;
+                PC_MUX          <= 1'b1;
+                JUMP_MUX        <= 1'b0;
+                BEQ_MUX         <= 1'b1;
+                WB_MUX          <= 1'b0;
+                SAVE_PC_MUX     <= 1'b0;
+                ram_rd          <= 1'b0;
+                ram_wr          <= 1'b0;
+                wb_wr           <= 1'b0;
+                silence_op      <= 1'b0;
+            end
 
     end
 

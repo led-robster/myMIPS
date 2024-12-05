@@ -43,8 +43,8 @@ always @(*) begin
         // <<
         RES = OP1 << OP2;
     end else if (cmd==3'b011) begin
-        // >
-        if (s_op1>s_op2) begin
+        // <
+        if (s_op1<s_op2) begin
             RES = 16'd1;
         end else begin
             RES = 16'd0;

@@ -2,6 +2,7 @@
 
 ADDI $r2, $r1, d'10
 AND $r3, $r1, $r2
+SLT $r1, $r3, $r2
 ; ADD $r0, $r1, $r2
 ; SUB $r0, $r1, $r2
 ; ADDI $r0, $r1, d'10

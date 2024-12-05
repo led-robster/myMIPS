@@ -61,13 +61,12 @@ always @(posedge clk or rst) begin
             if (rs==forward_regs[5:3]) begin
                 // cold
                 FORWARD_OP1_MUX <= 2;
-                fw_op1 <= ma_res;
             end else if (rs[2:0]==forward_regs[2:0]) begin
                 FORWARD_OP1_MUX <= 1;
             end
             if (rt==forward_regs[5:3]) begin
                 // cold
-                FORWARD_OP2_MUX <= 1;
+                FORWARD_OP2_MUX <= 2;
             end else if (rt==forward_regs[2:0]) begin
                 // hot
                 FORWARD_OP2_MUX <= 1;
@@ -94,12 +93,10 @@ always @(posedge clk or rst) begin
             // these instructions don't have a destination address, but one of their operands is a register
             if (rs==forward_regs[5:3]) begin
                 // cold
-                FORWARD_OP1_MUX <= 1'b1;
-                fw_op1 <= ma_res;
+                FORWARD_OP1_MUX <= 2;
             end else if (rs==forward_regs[2:0]) begin
                 // hot
-                FORWARD_OP1_MUX <= 1'b1;
-                fw_op1 <= alu_res;
+                FORWARD_OP1_MUX <= 1;
             end
         end
 
@@ -107,16 +104,13 @@ always @(posedge clk or rst) begin
         if (opcode==4'b0101) begin
             if (rs==forward_regs[5:3]) begin
                 // cold
-                FORWARD_OP1_MUX <= 1'b1;
-                fw_op1 <= ma_res;
+                FORWARD_OP1_MUX <= 2;
             end else if (rs==forward_regs[2:0]) begin
                 // hot
-                FORWARD_OP1_MUX <= 1'b1;
-                fw_op1 <= alu_res;
+                FORWARD_OP1_MUX <= 1;
             end
             if (rt==forward_regs[2:0]) begin
                 forward_ram_wdata_mux <= 1'b1;
-                // fw_ram_wdata
             end
         end
 
@@ -124,21 +118,17 @@ always @(posedge clk or rst) begin
         if (opcode==4'b0110) begin
             if (rs==forward_regs[5:3]) begin
                 // cold
-                FORWARD_OP1_MUX <= 1'b1;
-                fw_op1 <= ma_res;
+                FORWARD_OP1_MUX <= 2;
             end else if (rs==forward_regs[2:0]) begin
                 // hot
-                FORWARD_OP1_MUX <= 1'b1;
-                fw_op1 <= alu_res;
+                FORWARD_OP1_MUX <= 1;
             end
             if (rt==forward_regs[5:3]) begin
                 // cold
-                FORWARD_OP2_MUX <= 1'b1;
-                fw_op2 <= ma_res;
+                FORWARD_OP2_MUX <= 2;
             end else if (rt==forward_regs[2:0]) begin
                 // hot
-                FORWARD_OP2_MUX <= 1'b1;
-                fw_op2 <= alu_res;
+                FORWARD_OP2_MUX <= 1;
             end
         end
 
