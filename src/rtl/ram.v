@@ -28,5 +28,10 @@ module ram #(
         end
 
     end
+
+
+    initial begin
+        $readmemb("../src/mem/data.mem", RAM);
+    end 
     
 endmodule

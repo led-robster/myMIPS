@@ -182,11 +182,16 @@ def main():
             Opcode_bin = "0000"
             rs_bin = assign_reg_bin(rs)
             if opcode=="sll" or opcode=="srl":
-                rt_bin = assign_shamt_bin(rt)
+                rs = not_opcode[0]
+                rt = not_opcode[1]
+                rd = not_opcode[2] # this is actually the shamt
+                rs_bin = assign_reg_bin(rs)
+                rd_bin = assign_shamt_bin(rd)
+                rt_bin = assign_reg_bin(rt)
             else:
+                rd_bin = assign_reg_bin(rd)
                 rt_bin = assign_reg_bin(rt)
             
-            rd_bin = assign_reg_bin(rd)
             Fcode_bin = Fcode_dict[opcode]
             line_bin = Opcode_bin+rs_bin+rt_bin+rd_bin+Fcode_bin
 

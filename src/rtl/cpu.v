@@ -60,6 +60,7 @@ wire mux_res, mux_op2, mux_pc, mux_shamt_imm, mux_beq, mux_jump, mux_wb, mux_sil
 wire[1:0] mux_forward_op1, mux_forward_op2;
 wire mux_forward_ram;
 wire[15:0] fw_op1, fw_op2, fw_ram_wdata;
+reg mux_silence_d;
 // pipeline
 reg mux_jump_d;
 reg mux_jump_dd;
@@ -97,7 +98,7 @@ reg mux_wb_dd;
 reg[15:0] res_mux_out_d;
 //
 wire[ROM_AWIDTH-1:0] pc_incr_out;
-wire silence_mux_out;
+wire[15:0] silence_mux_out;
 wire[3:0] wb_mux_out;
 wire[5:0] shamt_imm_mux_out;
 wire[15:0] op2_mux_out;
@@ -106,15 +107,18 @@ wire[15:0] save_pc_mux_out;
 wire[ROM_AWIDTH-1:0] jump_mux_out;
 wire[15:0] beq_mux_out;
 wire[1:0] pc_mux_out;
+reg[15:0] rs_sampled;
+reg[15:0] rt_sampled;
 
 
 // ALLOCATIONS
 reg unsigned[ROM_AWIDTH-1:0] PC;
 rom #(.AWIDTH(ROM_AWIDTH)) rom(.clk(clk), .i_rd(rom_rd_d), .i_raddr(rom_raddr), .o_rdata(rom_rdata));
-regfile #(.AWIDTH(4)) regfile(.clk(clk), .clear(regfile_clear), .addr_rs(addr_rs), .req_rs(rd_rs), .addr_rt(addr_rt), .req_rt(rd_rt), .addr_rd(addr_rd), .req_rd(wr_rd), .wdata(wdata_rd), .rs(rs), .rt(rt));
+regfile #(.AWIDTH(4)) regfile(.clk(clk), .clear(regfile_clear), .addr_rs(addr_rs), .req_rs(rd_rs), .addr_rt(addr_rt), 
+.req_rt(rd_rt), .addr_rd(addr_rd), .req_rd(wr_rd), .wdata(wdata_rd), .rs(rs), .rt(rt));
 alu alu(.OP1(alu_op1), .OP2(alu_op2), .cmd(alu_cmd), .RES(alu_res), .eq_bit(alu_eqbit), .ovF(alu_ovF));
-ram #(.AWIDTH(RAM_AWIDTH), .DWIDTH(RAM_DWIDTH)) ram(.clk(clk), .rst(rst), .i_rd(ram_rd), .i_wr(ram_wr), .i_raddr(ram_raddr),
-.i_waddr(ram_waddr), .i_wdata(ram_wdata), .o_rdata(ram_rdata));
+ram #(.AWIDTH(RAM_AWIDTH), .DWIDTH(RAM_DWIDTH)) ram(.clk(clk), .rst(rst), .i_rd(ram_rd), .i_wr(ram_wr), 
+.i_raddr(ram_raddr), .i_waddr(ram_waddr), .i_wdata(ram_wdata), .o_rdata(ram_rdata));
 
 control #(.RST_POL(RST_POL)) control(.clk(clk), .rst(rst), .ROM_data(control_rom_data), .rom_rd(control_rom_rd), .ram_rd(control_ram_rd), 
 .ram_wr(control_ram_wr), .rd_rs(control_rd_rs), .rd_rt(control_rd_rt), .addr_rs(control_addr_rs), .addr_rt(control_addr_rt), .addr_rd(control_addr_rd), 
@@ -126,36 +130,61 @@ hazard_unit #(.RST_POL(RST_POL)) hazard_unit(.clk(clk), .rst(rst), .instruction(
 .FORWARD_OP1_MUX(mux_forward_op1), .FORWARD_OP2_MUX(mux_forward_op2),
 .FORWARD_RAM_MUX(mux_forward_ram), .fw_op1(fw_op1), .fw_op2(fw_op2), .fw_ram_wdata(fw_ram_wdata));
 
+// RAM
+assign ram_rd = ram_rd_d;
+assign ram_raddr = alu_res_d;
+assign ram_wr = ram_wr_d;
+assign ram_waddr = alu_res_d;
 
+reg startup_screening;
 
 // MUXes
-assign silence_mux_out = mux_silence ? 16'b0 : rom_rdata;
+assign silence_mux_out = (mux_silence | mux_silence_d) ? 16'b0 : rom_rdata;
 assign wb_mux_out = mux_wb_dd ? wb_waddr_dd : addr_rd_ddd; 
 assign shamt_imm_mux_out = mux_shamt_imm ? shamt_d : imm_d;
 assign op2_mux_out = mux_op2 ? shamt_imm_mux_out : rt;
-assign res_mux_out = mux_res_dd ? alu_res_d : ram_rdata;
+assign res_mux_out = mux_res_dd ? alu_res_dd: ram_rdata;
 assign save_pc_mux_out = mux_save_pc_dd ? PC_ddd : res_mux_out;
 assign beq_mux_out = (alu_eqbit_dd) ? (offset_ddd + 1) : pc_mux_out;
 assign jump_mux_out = mux_jump_dd ? res_mux_out : pc_incr_out;
-assign pc_mux_out = (mux_pc_dd) ? 1 : 0;
+assign pc_mux_out = (mux_pc & startup_screening) ? 1 : 0;
+
+always @(posedge clk or rst) begin
+    if (rst==RST_POL) begin
+        startup_screening <= 1'b0;
+    end else if (clk) begin
+        if (rom_rd==1'b1) begin
+            startup_screening <= 1'b1;
+        end
+    end
+
+end
 
 // combinatorial nets
 assign pc_incr_out = PC + beq_mux_out;
 assign rom_raddr = PC;
-assign control_rom_data = rom_rdata;
+assign control_rom_data = silence_mux_out;
     //alu
-assign alu_op1 = (mux_forward_op1[1]) ? res_mux_out_d : (mux_forward_op1[0] ? alu_res_d : rs);
-assign alu_op2 = (mux_forward_op2[1]) ? res_mux_out_d : (mux_forward_op2[0] ? alu_res_d : op2_mux_out);
+assign alu_op1 = (mux_forward_op1[1]) ? res_mux_out : (mux_forward_op1[0] ? alu_res_d : ((mux_op2) ? 3'b111  : rs)); //rt
+assign alu_op2 = (mux_forward_op2[1]) ? res_mux_out : (mux_forward_op2[0] ? alu_res_d : op2_mux_out);
 assign alu_cmd = control_alu_cmd;
     //regfile
 //assign regfile_clear = 1'b0; // inactive
 assign wr_rd = wb_wr_dd;
-assign wdata_rd = save_pc_mux_out_d;
+assign wdata_rd = save_pc_mux_out;
 assign addr_rs = control_addr_rs;
 assign addr_rt = control_addr_rt;
 assign addr_rd = wb_mux_out;
     // ram
 assign ram_wdata = (mux_forward_ram) ? res_mux_out_d : rt_d ;
+
+always @(posedge clk ) begin
+    rs_sampled <= rs;
+end
+
+always @(posedge clk ) begin
+    rt_sampled <= rt;
+end
 
 // sequential nets
 // ((RST_POL && ext_rst) || (!RST_POL && !ext_rst))
@@ -191,6 +220,7 @@ always @(posedge clk or rst) begin
         PC <= jump_mux_out;
     end
 end
+
 
 // pipelines
 always @(posedge clk or rst) begin
@@ -229,6 +259,8 @@ always @(posedge clk or rst) begin
         mux_wb_d        <= 0;
         mux_wb_dd       <= 0;
         res_mux_out_d   <= 0;
+        mux_silence_d   <= 0;
+
     end else if (clk) begin
 
             mux_jump_d      <= mux_jump;
@@ -265,6 +297,7 @@ always @(posedge clk or rst) begin
             mux_wb_d        <= mux_wb;
             mux_wb_dd       <= mux_wb_d;
             res_mux_out_d   <= res_mux_out;
+            mux_silence_d   <= mux_silence;
     end
     
 end

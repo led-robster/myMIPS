@@ -32,6 +32,46 @@ assign rd = instruction[5:3];
 assign rs = instruction[11:9];
 assign rt = instruction[8:6];
 
+// always @(*) begin
+//     if (opcode==0) begin
+//         if (rs==forward_regs[5:3]) begin
+//             // cold
+//             FORWARD_OP1_MUX <= 2;
+//         end
+//         if (rs==forward_regs[2:0]) begin
+//             FORWARD_OP1_MUX <= 1;
+//         end
+//         if (rs!=forward_regs[5:3] & rs!=forward_regs[2:0]) begin
+//             FORWARD_OP1_MUX <= 0;
+//         end
+//         if (rt==forward_regs[5:3]) begin
+//             // cold
+//             FORWARD_OP2_MUX <= 2;
+//         end
+//         if (rt==forward_regs[2:0]) begin
+//             // hot
+//             FORWARD_OP2_MUX <= 1;
+//         end
+//         if (rt!=forward_regs[5:3] & rt!=forward_regs[2:0]) begin
+//             FORWARD_OP2_MUX <= 0;
+//         end
+//     end
+
+//     if (opcode==1 || opcode==3) begin
+//         if (rt==forward_regs[5:3]) begin
+//             // cold
+//             FORWARD_OP2_MUX <= 2;
+//         end
+//         if (rt==forward_regs[2:0]) begin
+//             // hot
+//             FORWARD_OP2_MUX <= 1;
+//         end
+//         if (rt!=forward_regs[5:3] & rt!=forward_regs[2:0]) begin
+//             FORWARD_OP2_MUX <= 0;            
+//         end
+//     end
+// end
+
 
 // hazard logic
 always @(posedge clk or rst) begin
@@ -61,13 +101,15 @@ always @(posedge clk or rst) begin
             if (rs==forward_regs[5:3]) begin
                 // cold
                 FORWARD_OP1_MUX <= 2;
-            end else if (rs[2:0]==forward_regs[2:0]) begin
+            end
+            if (rs==forward_regs[2:0]) begin
                 FORWARD_OP1_MUX <= 1;
             end
             if (rt==forward_regs[5:3]) begin
                 // cold
                 FORWARD_OP2_MUX <= 2;
-            end else if (rt==forward_regs[2:0]) begin
+            end
+            if (rt==forward_regs[2:0]) begin
                 // hot
                 FORWARD_OP2_MUX <= 1;
             end
@@ -81,7 +123,8 @@ always @(posedge clk or rst) begin
             if (rt==forward_regs[5:3]) begin
                 // cold
                 FORWARD_OP2_MUX <= 2;
-            end else if (rt==forward_regs[2:0]) begin
+            end
+            if (rt==forward_regs[2:0]) begin
                 // hot
                 FORWARD_OP2_MUX <= 1;
             end
@@ -89,48 +132,52 @@ always @(posedge clk or rst) begin
         
 
         // lw
-        if (opcode==4'b0100) begin
-            // these instructions don't have a destination address, but one of their operands is a register
-            if (rs==forward_regs[5:3]) begin
-                // cold
-                FORWARD_OP1_MUX <= 2;
-            end else if (rs==forward_regs[2:0]) begin
-                // hot
-                FORWARD_OP1_MUX <= 1;
-            end
-        end
+        // if (opcode==4'b0100) begin
+        //     // these instructions don't have a destination address, but one of their operands is a register
+        //     if (rs==forward_regs[5:3]) begin
+        //         // cold
+        //         FORWARD_OP1_MUX <= 2;
+        //     end
+        //     if (rs==forward_regs[2:0]) begin
+        //         // hot
+        //         FORWARD_OP1_MUX <= 1;
+        //     end
+        // end
 
         // sw
-        if (opcode==4'b0101) begin
-            if (rs==forward_regs[5:3]) begin
-                // cold
-                FORWARD_OP1_MUX <= 2;
-            end else if (rs==forward_regs[2:0]) begin
-                // hot
-                FORWARD_OP1_MUX <= 1;
-            end
-            if (rt==forward_regs[2:0]) begin
-                forward_ram_wdata_mux <= 1'b1;
-            end
-        end
+        // if (opcode==4'b0101) begin
+        //     if (rs==forward_regs[5:3]) begin
+        //         // cold
+        //         FORWARD_OP1_MUX <= 2;
+        //     end
+        //     if (rs==forward_regs[2:0]) begin
+        //         // hot
+        //         FORWARD_OP1_MUX <= 1;
+        //     end
+        //     if (rt==forward_regs[2:0]) begin
+        //         forward_ram_wdata_mux <= 1'b1;
+        //     end
+        // end
 
         // beq
-        if (opcode==4'b0110) begin
-            if (rs==forward_regs[5:3]) begin
-                // cold
-                FORWARD_OP1_MUX <= 2;
-            end else if (rs==forward_regs[2:0]) begin
-                // hot
-                FORWARD_OP1_MUX <= 1;
-            end
-            if (rt==forward_regs[5:3]) begin
-                // cold
-                FORWARD_OP2_MUX <= 2;
-            end else if (rt==forward_regs[2:0]) begin
-                // hot
-                FORWARD_OP2_MUX <= 1;
-            end
-        end
+        // if (opcode==4'b0110) begin
+        //     if (rs==forward_regs[5:3]) begin
+        //         // cold
+        //         FORWARD_OP1_MUX <= 2;
+        //     end
+        //      if (rs==forward_regs[2:0]) begin
+        //         // hot
+        //         FORWARD_OP1_MUX <= 1;
+        //     end
+        //     if (rt==forward_regs[5:3]) begin
+        //         // cold
+        //         FORWARD_OP2_MUX <= 2;
+        //     end
+        //     if (rt==forward_regs[2:0]) begin
+        //         // hot
+        //         FORWARD_OP2_MUX <= 1;
+        //     end
+        // end
 
 
     end

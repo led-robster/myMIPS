@@ -3,6 +3,13 @@
 Project to understand how processors are built.  
 Based on MIPS instruction set.
 
+## FEATURES
+
+[X] Data Hazard Unit (forwarding strategy)  
+[X] Control Hazard Unit (stalling strategy)  
+[] Interrupt Center  
+[] FPAu  
+
 ## GOAL 👟💨⚽
 
 [] run on FPGA  
@@ -33,3 +40,8 @@ iverilog:
 > advanced features: fpu, coprocessors, dma engines, branch prediction, privileges,...  
 > linux on risc-v  
 > run minimal programs  
+
+## TODO
+
+[] test regfile, specifically write in phase1 and read in phase2
+[] ISA green card

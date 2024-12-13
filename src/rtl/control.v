@@ -14,9 +14,9 @@ module control #(
     // REGFILE
     output reg rd_rs,
     output reg rd_rt,
-    output[3:0] addr_rs,
-    output[3:0] addr_rt,
-    output[3:0] addr_rd,
+    output reg[3:0] addr_rs,
+    output reg[3:0] addr_rt,
+    output reg[3:0] addr_rd,
     output reg[3:0] wb_waddr,
     output wr_rd,
     //
@@ -102,9 +102,23 @@ always @(posedge clk or negedge rst) begin
 end
 
 assign instruction = ROM_data;
-assign addr_rs = {1'b0, instruction[11:9]};
-assign addr_rt = {1'b0, instruction[8:6]};
-assign addr_rd = {1'b0, instruction[5:3]};
+// assign addr_rs = {1'b0, instruction[11:9]};
+// assign addr_rt = {1'b0, instruction[8:6]};
+// assign addr_rd = {1'b0, instruction[5:3]};
+
+wire op_switch; // used for sll and srl
+assign op_switch = (opcode==0 & Fcode==5 | opcode==0 & Fcode==6) ? (1) : (0);
+
+always @(*) begin
+    addr_rs <= {1'b0, instruction[11:9]};
+    addr_rt <= {1'b0, instruction[8:6]};
+    addr_rd <= {1'b0, instruction[5:3]};
+    if (op_switch) begin
+        addr_rs <= {1'b0, instruction[8:6]};
+        addr_rd <= {1'b0, instruction[11:9]};
+    end
+end
+
 
 // PIPELINE IS EXTERNAL.
 // shamt 1cc pipeline. shamt can arrive to EXECUTE.
@@ -128,6 +142,7 @@ always @(posedge clk or rst) begin
         SHAMT_IMM_MUX   <= 1'b0;
         SAVE_PC_MUX     <= 1'b0;
         wb_wr           <= 1'b0;
+        SILENCE_MUX     <= 1'b0;
 
     end else if (clk) begin
 
@@ -242,6 +257,7 @@ always @(posedge clk or rst) begin
                 // beq
                 BEQ_MUX <= 1'b0;
                 SILENCE_MUX <= 1'b1;
+                PC_MUX <= 1'b0;
                 silence_op <= 1'b1; 
                 //== 
                 ALU_cmd <= 3'b111;
@@ -270,7 +286,6 @@ always @(posedge clk or rst) begin
                 SILENCE_MUX <= 1'b0;
             end
 
-
             // handle null instruction
             if (instruction==0) begin
                 // default
@@ -286,6 +301,13 @@ always @(posedge clk or rst) begin
                 ram_wr          <= 1'b0;
                 wb_wr           <= 1'b0;
                 silence_op      <= 1'b0;
+            end
+
+            if (SILENCE_MUX==1'b1) begin
+                PC_MUX <= 1'b0;
+            end
+            if (silence_ddd==1'b1) begin
+                PC_MUX <= 1'b1;
             end
 
     end

@@ -20,7 +20,8 @@ reg[15:0] REG_BANK [0:(1<<AWIDTH)-1];
 
 integer i_loop = 0;
 
-always @(posedge clk ) begin
+// write
+always @(negedge clk ) begin
     if (req_rd==1'b1) begin
         REG_BANK[addr_rd] <= wdata;
     end
@@ -31,8 +32,8 @@ always @(posedge clk ) begin
     end
 end
 
-
-always @(negedge clk ) begin
+// read
+always @(posedge clk ) begin
     if (req_rs==1'b1) begin
         rs <= REG_BANK[addr_rs];
     end
