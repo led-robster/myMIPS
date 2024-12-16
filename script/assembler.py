@@ -56,12 +56,20 @@ def assign_imm_bin(imm):
         # decimal
         integer_value = int(imm[2:])
         binary_string = bin(integer_value)[2:]
-        binary_string_padded = binary_string.zfill(6)
+        if integer_value>2**6-1:
+            binary_string_padded = binary_string[-7:-1]
+        else:
+            binary_string_padded = binary_string.zfill(6)
         ret_val = binary_string_padded
 
     elif imm[0]=='b':
         # binary
-        binary_string = imm[2:].zfill(6)
+        binary_string = imm[2:]
+        if len(binary_string)>6:
+            binary_string = binary_string[-7:-1]
+        else:
+            binary_string = imm[2:].zfill(6)
+
         ret_val = binary_string
 
     elif imm[0]=='h':
@@ -69,7 +77,10 @@ def assign_imm_bin(imm):
         # h'22 -> 00100010
         integer_value = int(imm[2:], 16)
         binary_string = bin(integer_value)[2:]
-        binary_string_padded = binary_string.zfill(6)
+        if integer_value>2**6-1:
+            binary_string_padded = binary_string[-7:-1]
+        else:
+            binary_string_padded = binary_string.zfill(6)
         ret_val = binary_string_padded
 
     return ret_val
@@ -188,6 +199,10 @@ def main():
                 rs_bin = assign_reg_bin(rs)
                 rd_bin = assign_shamt_bin(rd)
                 rt_bin = assign_reg_bin(rt)
+            elif opcode=="jr":
+                rs = not_opcode[0]
+                rt = "$r0"
+                rd = "$r0"
             else:
                 rd_bin = assign_reg_bin(rd)
                 rt_bin = assign_reg_bin(rt)

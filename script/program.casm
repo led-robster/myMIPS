@@ -13,5 +13,5 @@ LW $r7, $r2, d'10
 SW $r3, $r2, d'10
 BEQ $r3, $r1, d'1 ; if $r0==$r1 then PC = PC + 2 + 2 * offset
 J h'2
-JR $r1, $r0, $r0
+JR $r1
 JAL h'2

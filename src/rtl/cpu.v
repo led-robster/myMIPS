@@ -165,7 +165,7 @@ assign pc_incr_out = PC + beq_mux_out;
 assign rom_raddr = PC;
 assign control_rom_data = silence_mux_out;
     //alu
-assign alu_op1 = (mux_forward_op1[1]) ? res_mux_out : (mux_forward_op1[0] ? alu_res_d : ((mux_op2) ? 3'b111  : rs)); //rt
+assign alu_op1 = (mux_forward_op1[1]) ? res_mux_out : (mux_forward_op1[0] ? alu_res_d : rs);
 assign alu_op2 = (mux_forward_op2[1]) ? res_mux_out : (mux_forward_op2[0] ? alu_res_d : op2_mux_out);
 assign alu_cmd = control_alu_cmd;
     //regfile

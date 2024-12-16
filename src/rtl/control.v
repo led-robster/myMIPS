@@ -225,7 +225,7 @@ always @(posedge clk or rst) begin
                 // addi
                 OP2_MUX <= 1'b1;
                 wb_wr <= 1'b1;
-                wb_waddr <= rs;
+                wb_waddr <= rt;
                 WB_MUX <= 1'b1;
                 // +
                 ALU_cmd <= 3'b000;
@@ -233,7 +233,7 @@ always @(posedge clk or rst) begin
                 // slti
                 OP2_MUX <= 1'b1;
                 wb_wr <= 1'b1;
-                wb_waddr <= rs;
+                wb_waddr <= rt;
                 WB_MUX <= 1'b1;
                 // >
                 ALU_cmd <= 3'b011;
