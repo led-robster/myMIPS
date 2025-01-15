@@ -22,5 +22,11 @@ module tb;
         #40000000 $finish;
     end
 
+    initial
+    begin
+        $dumpfile("test.fst");
+        $dumpvars(0);
+    end
+
 
 endmodule
