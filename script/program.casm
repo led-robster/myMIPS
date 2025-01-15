@@ -15,3 +15,8 @@ BEQ $r3, $r1, d'1 ; if $r0==$r1 then PC = PC + 2 + 2 * offset
 J h'2
 JR $r1
 JAL h'2
+; SLL x 4 , to see the effect of write phase 1 and read phase 2, and confirm the behaviour of forwarding
+SLL $r5, $r7, d'3
+SLL $r4, $r5, d'4
+SLL $r3, $r5, d'5
+SLL $r2, $r5, d'6
