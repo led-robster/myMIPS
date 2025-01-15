@@ -4,3 +4,8 @@ build/*
 
 src/rtl/*
 !src/rtl/*.v
+
+doc/*
+!doc/*.pdf
+!doc/*.drawio
+!doc/*.md
