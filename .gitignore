@@ -8,3 +8,8 @@ src/rtl/*
 src/tb/*.fst
 
 todo.md
+
+doc/*
+!doc/*.pdf
+!doc/*.drawio
+!doc/*.md

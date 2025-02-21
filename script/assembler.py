@@ -160,6 +160,8 @@ def main():
 
         line_cnt += 1
 
+        print(line_cnt)
+
         line_list = line.split(" ")
 
         if line_list[0]==";" or len(line_list)==1:
@@ -187,25 +189,29 @@ def main():
 
         if opcode in R_ops:
             # R format
-            rs = not_opcode[1]
-            rt = not_opcode[2] # or shamt
-            rd = not_opcode[0]
+            
             Opcode_bin = "0000"
-            rs_bin = assign_reg_bin(rs)
             if opcode=="sll" or opcode=="srl":
                 rs = not_opcode[0]
                 rt = not_opcode[1]
                 rd = not_opcode[2] # this is actually the shamt
-                rs_bin = assign_reg_bin(rs)
                 rd_bin = assign_shamt_bin(rd)
-                rt_bin = assign_reg_bin(rt)
             elif opcode=="jr":
                 rs = not_opcode[0]
                 rt = "$r0"
                 rd = "$r0"
-            else:
                 rd_bin = assign_reg_bin(rd)
-                rt_bin = assign_reg_bin(rt)
+            else:
+                rs = not_opcode[1]
+                rt = not_opcode[2] # or shamt
+                rd = not_opcode[0]
+                rd_bin = assign_reg_bin(rd)
+
+
+            # reg binary assignment
+            rs_bin = assign_reg_bin(rs)
+            # rd_bin = assign_reg_bin(rd)
+            rt_bin = assign_reg_bin(rt)
             
             Fcode_bin = Fcode_dict[opcode]
             line_bin = Opcode_bin+rs_bin+rt_bin+rd_bin+Fcode_bin
@@ -233,6 +239,7 @@ def main():
             address = not_opcode[0]
             addr_bin = assign_addr_bin(address)
             Opcode_bin = Jcode_dict[opcode]
+            line_bin = Opcode_bin+addr_bin
 
         else :
             # invalid code
