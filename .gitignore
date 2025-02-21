@@ -4,3 +4,7 @@ build/*
 
 src/rtl/*
 !src/rtl/*.v
+
+src/tb/*.fst
+
+todo.md
