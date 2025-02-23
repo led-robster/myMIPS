@@ -6,20 +6,25 @@ module cpu #(
 ) (
     input clk,
     input rst
+    // debug ITF
+
 );
 
-// PARAMETERS
+// CONSTANTS
+// =========================================================
 parameter ROM_AWIDTH = 8;
 parameter RAM_AWIDTH = 8;
 parameter RAM_DWIDTH = 16;
 
+// =========================================================
+// DECLARATIONS
 
 // INTERNALS
-    // rom port
+// rom port
 reg rom_rd, rom_rd_d;
 wire[ROM_AWIDTH-1:0] rom_raddr;
 wire[15:0] rom_rdata;
-    // regfile port
+// regfile port
 reg regfile_clear;
 wire[3:0] addr_rs;
 reg rd_rs;
@@ -29,18 +34,18 @@ wire[3:0] addr_rd;
 wire wr_rd;
 wire[15:0] wdata_rd;
 wire[15:0] rs, rt;
-    // alu port
+// alu port
 wire[15:0] alu_op1, alu_op2;
 wire[2:0] alu_cmd;
 wire[15:0] alu_res;
 wire alu_eqbit, alu_ovF;
-    // ram port
+// ram port
 reg ram_rst;
 wire ram_rd, ram_wr;
 wire[RAM_AWIDTH-1:0] ram_raddr, ram_waddr;
 wire[RAM_DWIDTH-1:0] ram_wdata;
 wire[RAM_DWIDTH-1:0] ram_rdata;
-    // control port
+// control port
 reg control_rst;
 wire[15:0] control_rom_data;
 wire control_rom_rd;
@@ -56,12 +61,14 @@ wire[3:0] control_wb_waddr;
 wire[2:0] control_shamt;
 wire[5:0] control_immediate;
 wire[2:0] control_alu_cmd;
+// MULTIPLEXERS
 wire mux_res, mux_op2, mux_pc, mux_shamt_imm, mux_beq, mux_jump, mux_wb, mux_silence, mux_save_pc;
 wire[1:0] mux_forward_op1, mux_forward_op2;
 wire mux_forward_ram;
 wire[15:0] fw_op1, fw_op2, fw_ram_wdata;
 reg mux_silence_d;
-// pipeline
+
+// pipeline signals
 reg mux_jump_d;
 reg mux_jump_dd;
 reg alu_eqbit_d;
@@ -112,23 +119,31 @@ reg[15:0] rt_sampled;
 
 
 // ALLOCATIONS
+// PC
 reg unsigned[ROM_AWIDTH-1:0] PC;
+// internal ROM
 rom #(.AWIDTH(ROM_AWIDTH)) rom(.clk(clk), .i_rd(rom_rd_d), .i_raddr(rom_raddr), .o_rdata(rom_rdata));
+// REGFILE
 regfile #(.AWIDTH(4)) regfile(.clk(clk), .clear(regfile_clear), .addr_rs(addr_rs), .req_rs(rd_rs), .addr_rt(addr_rt), 
 .req_rt(rd_rt), .addr_rd(addr_rd), .req_rd(wr_rd), .wdata(wdata_rd), .rs(rs), .rt(rt));
+// ALU
 alu alu(.OP1(alu_op1), .OP2(alu_op2), .cmd(alu_cmd), .RES(alu_res), .eq_bit(alu_eqbit), .ovF(alu_ovF));
+// RAM internal
 ram #(.AWIDTH(RAM_AWIDTH), .DWIDTH(RAM_DWIDTH)) ram(.clk(clk), .rst(rst), .i_rd(ram_rd), .i_wr(ram_wr), 
 .i_raddr(ram_raddr), .i_waddr(ram_waddr), .i_wdata(ram_wdata), .o_rdata(ram_rdata));
-
+// CONTROL
 control #(.RST_POL(RST_POL)) control(.clk(clk), .rst(rst), .ROM_data(control_rom_data), .rom_rd(control_rom_rd), .ram_rd(control_ram_rd), 
 .ram_wr(control_ram_wr), .rd_rs(control_rd_rs), .rd_rt(control_rd_rt), .addr_rs(control_addr_rs), .addr_rt(control_addr_rt), .addr_rd(control_addr_rd), 
 .wr_rd(control_wr_rd), .wb_waddr(control_wb_waddr), .shamt(control_shamt), .immediate(control_immediate), .ALU_cmd(control_alu_cmd), .RES_MUX(mux_res), 
 .OP2_MUX(mux_op2), .PC_MUX(mux_pc), .SHAMT_IMM_MUX(mux_shamt_imm), 
 .BEQ_MUX(mux_beq), .JUMP_MUX(mux_jump), .WB_MUX(mux_wb), .SILENCE_MUX(mux_silence), .SAVE_PC_MUX(mux_save_pc));
-
+// HAZARD UNIT
 hazard_unit #(.RST_POL(RST_POL)) hazard_unit(.clk(clk), .rst(rst), .instruction(rom_rdata), .alu_res(alu_res_d), .ma_res(mux_res_d), 
 .FORWARD_OP1_MUX(mux_forward_op1), .FORWARD_OP2_MUX(mux_forward_op2),
 .FORWARD_RAM_MUX(mux_forward_ram), .fw_op1(fw_op1), .fw_op2(fw_op2), .fw_ram_wdata(fw_ram_wdata));
+
+// SIGNAL ASSIGNMENTS
+// =========================================================
 
 // RAM
 assign ram_rd = ram_rd_d;
@@ -202,7 +217,7 @@ always @(posedge clk or rst) begin
     end
 end
 
-    // regfile_clear
+// regfile_clear
 always @(posedge clk or rst) begin
     if (rst==RST_POL) begin
         regfile_clear <= 1;
