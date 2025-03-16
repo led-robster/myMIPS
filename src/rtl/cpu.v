@@ -2,12 +2,32 @@
 
 
 module cpu #(
-    parameter RST_POL = 1'b0
+    parameter RST_POL = 1'b0,
+    parameter DBG = 0
 ) (
     input clk,
-    input rst
+    input rst,
     // debug ITF
-
+        //regfile
+    output DBG_rd_rs,
+    output DBG_rd_rt,
+    output DBG_wr_rd,
+    output[3:0] DBG_addr_rs,
+    output[3:0] DBG_addr_rt,
+    output[3:0] DBG_addr_rd,
+    output[15:0] DBG_wdata_rd,
+    output[15:0] DBG_rs,
+    output[15:0] DBG_rt,
+        // PC
+    output[7:0] DBG_pc,
+        // RAM
+    output DBG_ram_rd,
+    output DBG_ram_wr,
+    output[7:0] DBG_ram_raddr,
+    output[7:0] DBG_ram_waddr,
+    output[15:0] DBG_ram_wdata,
+    output[15:0] DBG_ram_rdata,
+    output[15:0] INSTR_D
 );
 
 // CONSTANTS
@@ -141,6 +161,20 @@ control #(.RST_POL(RST_POL)) control(.clk(clk), .rst(rst), .ROM_data(control_rom
 hazard_unit #(.RST_POL(RST_POL)) hazard_unit(.clk(clk), .rst(rst), .instruction(rom_rdata), .alu_res(alu_res_d), .ma_res(mux_res_d), 
 .FORWARD_OP1_MUX(mux_forward_op1), .FORWARD_OP2_MUX(mux_forward_op2),
 .FORWARD_RAM_MUX(mux_forward_ram), .fw_op1(fw_op1), .fw_op2(fw_op2), .fw_ram_wdata(fw_ram_wdata));
+
+
+// DBG DEFINITIONS
+assign DBG_rd_rs = rd_rs;
+assign DBG_rd_rt = rd_rt;
+assign DBG_wr_rd = wr_rd;
+assign DBG_addr_rs = addr_rs;
+assign DBG_addr_rt = addr_rt;
+assign DBG_addr_rd = addr_rd;
+assign  DBG_wdata_rd = wdata_rd;
+assign  DBG_rs = rs;
+assign  DBG_rt = rt;
+assign  DBG_pc = PC;
+assign INSTR_D = control_rom_data;
 
 // SIGNAL ASSIGNMENTS
 // =========================================================

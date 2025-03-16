@@ -8,15 +8,25 @@ VHDL_SystemVerilog\
 build/*
 !build/readme.md
 !build/Makefile
+*.bak
+*.fst
+*.vvp
 
-src/rtl/*
-!src/rtl/*.v
-
+# ignore WAVEFORM fst
 src/tb/*.fst
 
+#ignore personal markdown
 todo.md
+test/test_campaign.md
 
 doc/*
 !doc/*.pdf
 !doc/*.drawio
 !doc/*.md
+
+# ignore qrun output
+src/*.ini
+src/qrun.out/*
+src/rtl/qrun.out/*
+src/rtl/work/*
+src/rtl/*.ini

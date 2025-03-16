@@ -11,7 +11,7 @@ module tb;
     wire int_rst;
 
 
-    top top(.clk(clk), .ext_rst(ext_rst));
+    top top_inst(.clk(clk), .ext_rst(ext_rst));
 
     always #12.5 clk = ~clk;
 

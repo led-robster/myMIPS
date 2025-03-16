@@ -21,7 +21,7 @@ always @(posedge clk ) begin
 end
 
 initial begin
-    $readmemb("../src/mem/program.mem", ROM);
+    $readmemb("../src/mem/program.mem", ROM); // folder relative to where Makefile is
 end 
     
 endmodule
