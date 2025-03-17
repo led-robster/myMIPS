@@ -6,6 +6,12 @@ import sys
 script_dir = os.path.dirname(__file__)
 asm_path = os.path.join(script_dir, 'program.casm')
 bins_path = os.path.join(script_dir, 'program.bins')
+ref_path  = os.path.join(script_dir, 'ref_casm.txt')
+
+GENERATE_REF = True
+
+BANNER = "XX.YY.ZZ INSTRUCTION SNAPSHOT: D        | E        | MA        | WB        |\n" \
+"=================================================================\n"
 
 R_ops = ["add", "sub", "and", "or", "slt", "sll", "srl", "jr"]
 I_ops = ["addi", "slti", "lw", "sw", "beq"]
@@ -155,12 +161,29 @@ def main():
     fh = open(asm_path, "r")
     fw = open(bins_path, "w")
 
+    if GENERATE_REF:
+        fref = open(ref_path, 'w')
+        regfile_content=""
+        instr_pipeline = ["", "", "", ""]
+        # regfile_pipeline
+        rs_pipeline = ["", "", "", ""]
+        rt_pipeline = ["", "", "", ""]
+        rd_pipeline = ["", "", "", ""]
+        register_source = 0
+        register_temp = 0
+        register_dest = 0
+
+
+
     line_cnt = 0
+
+
     for line in fh.readlines():
 
         line_cnt += 1
 
-        print(line_cnt)
+        if line_cnt%5==0:
+            print(line_cnt)
 
         line_list = line.split(" ")
 
@@ -216,6 +239,10 @@ def main():
             Fcode_bin = Fcode_dict[opcode]
             line_bin = Opcode_bin+rs_bin+rt_bin+rd_bin+Fcode_bin
 
+            if GENERATE_REF:
+                register_source = str(int(rs_bin,2))
+                register_temp = str(int(rt_bin, 2))
+
         elif opcode in I_ops:
             rs = not_opcode[0]
             rt = not_opcode[1]
@@ -233,13 +260,22 @@ def main():
                 print__pointy_separator()
                 print("invalid immediate range. 6 bits allowed.")
                 exit
-            
 
+            if GENERATE_REF:
+                register_source = str(int(rs_bin,2))
+                register_temp = str(int(rt_bin, 2))
+
+            
         elif opcode in J_ops:
             address = not_opcode[0]
             addr_bin = assign_addr_bin(address)
             Opcode_bin = Jcode_dict[opcode]
             line_bin = Opcode_bin+addr_bin
+
+            if GENERATE_REF:
+                register_source = "NONE"
+                register_temp = "NONE"
+
 
         else :
             # invalid code
@@ -250,8 +286,30 @@ def main():
 
         fw.write(line_bin+'\n')
 
+
+        if GENERATE_REF:
+            instr_pipeline[1:4] = instr_pipeline[0:3]
+            instr_pipeline[0] = hex(int(line_bin, 2))
+            rs_pipeline[1:4] = rs_pipeline[0:3]
+            rs_pipeline[0] = register_source
+            rt_pipeline[1:4] = rt_pipeline[0:3]
+            rt_pipeline[0] = register_temp
+            rd_pipeline[1:4] = rd_pipeline[0:3]
+            rd_pipeline[0] = register_dest
+            pipeline = f"{instr_pipeline[0]}        | {instr_pipeline[1]}        | {instr_pipeline[2]}        | {instr_pipeline[3]}        |\n"
+            regfile_content= f"Read rs#{rs_pipeline[0]}\n"\
+            f"Read data rs#{rs_pipeline[1]}"
+            fref.write(BANNER)
+            fref.write(pipeline)
+            fref.write(regfile_content)
+            fref.write("\n\n\n")
+
+
     fw.close()
     fh.close()
+
+    if GENERATE_REF:
+        fref.close()
 
     return
 
