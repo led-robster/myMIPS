@@ -6,6 +6,9 @@ filelist_SV.txt
 VHDL_SystemVerilog\
 
 build/*
+!build/clean.do
+!build/compile.do
+!build/modelsim.sh
 !build/readme.md
 !build/Makefile
 *.bak
