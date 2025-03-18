@@ -280,7 +280,7 @@ def main():
         else :
             # invalid code
             print("ERROR AT LINE " + str(line_cnt))
-            print__pointy_separator
+            print__pointy_separator()
             print("invalid opcode.")
             exit
 

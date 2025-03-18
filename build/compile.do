@@ -47,18 +47,18 @@ foreach file $tb_library {
 vsim -L mips_design -L mips_verif $top_unit
 
 # USER, load ROM memory
-mem load -infile ../src/mem/program.mem -format bin /tb/top/cpu/rom
+mem load -infile ../src/mem/program.mem -format bin /tb/top_inst/cpu_inst/rom
 
 # USER, load RAM memory
-mem load -infile ../src/mem/data.mem -format bin /tb/top/cpu/ram
+mem load -infile ../src/mem/data.mem -format bin /tb/top_inst/cpu_inst/ram
 
 # generate vcd for external consultance
 vcd file test_vcd.vcd
 # vcd add -r /tb_ram/*
 vcd add -r *
 
-add wave *
+add wave -rec sim:/*
 
 run -all
 
-quit -sim
+#quit -sim

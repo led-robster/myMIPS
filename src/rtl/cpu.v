@@ -84,7 +84,8 @@ wire[2:0] control_alu_cmd;
 // MULTIPLEXERS
 wire mux_res, mux_op2, mux_pc, mux_shamt_imm, mux_beq, mux_jump, mux_wb, mux_silence, mux_save_pc;
 wire[1:0] mux_forward_op1, mux_forward_op2;
-wire mux_forward_ram;
+wire mux_forward_ram_wdata, mux_forward_ram_waddr;
+reg mux_forward_ram_wdata_d, mux_forward_ram_waddr_d;
 wire[15:0] fw_op1, fw_op2, fw_ram_wdata;
 reg mux_silence_d;
 
@@ -160,7 +161,7 @@ control #(.RST_POL(RST_POL)) control(.clk(clk), .rst(rst), .ROM_data(control_rom
 // HAZARD UNIT
 hazard_unit #(.RST_POL(RST_POL)) hazard_unit(.clk(clk), .rst(rst), .instruction(rom_rdata), .alu_res(alu_res_d), .ma_res(mux_res_d), 
 .FORWARD_OP1_MUX(mux_forward_op1), .FORWARD_OP2_MUX(mux_forward_op2),
-.FORWARD_RAM_MUX(mux_forward_ram), .fw_op1(fw_op1), .fw_op2(fw_op2), .fw_ram_wdata(fw_ram_wdata));
+.FORWARD_RAM_WADDR_MUX(mux_forward_ram_waddr), .FORWARD_RAM_WDATA_MUX(mux_forward_ram_wdata), .fw_op1(fw_op1), .fw_op2(fw_op2), .fw_ram_wdata(fw_ram_wdata));
 
 
 // DBG DEFINITIONS
@@ -183,7 +184,7 @@ assign INSTR_D = control_rom_data;
 assign ram_rd = ram_rd_d;
 assign ram_raddr = alu_res_d;
 assign ram_wr = ram_wr_d;
-assign ram_waddr = alu_res_d;
+assign ram_waddr = mux_forward_ram_waddr_d ? res_mux_out  : alu_res_d;
 
 reg startup_screening;
 
@@ -225,7 +226,8 @@ assign addr_rs = control_addr_rs;
 assign addr_rt = control_addr_rt;
 assign addr_rd = wb_mux_out;
     // ram
-assign ram_wdata = (mux_forward_ram) ? res_mux_out_d : rt_d ;
+assign ram_wdata = mux_forward_ram_wdata_d ? res_mux_out : rt_d ;
+// assign ram_waddr = mux_forward_ram_waddr_dd ? res_mux_out  : alu_res_d;
 
 always @(posedge clk ) begin
     rs_sampled <= rs;
@@ -309,6 +311,8 @@ always @(posedge clk or rst) begin
         mux_wb_dd       <= 0;
         res_mux_out_d   <= 0;
         mux_silence_d   <= 0;
+        mux_forward_ram_wdata_d <= 0;
+        mux_forward_ram_waddr_d <= 0;
 
     end else if (clk) begin
 
@@ -347,6 +351,9 @@ always @(posedge clk or rst) begin
             mux_wb_dd       <= mux_wb_d;
             res_mux_out_d   <= res_mux_out;
             mux_silence_d   <= mux_silence;
+            mux_forward_ram_wdata_d <= mux_forward_ram_wdata;
+            mux_forward_ram_waddr_d <= mux_forward_ram_waddr;
+    
     end
     
 end
