@@ -6,7 +6,8 @@ module ram #(
 ) (
     input clk,
     input rst,
-    input i_rd, i_wr,
+    input i_rd, 
+    input i_wr,
     input[AWIDTH-1:0] i_raddr,
     input[AWIDTH-1:0] i_waddr,
     input[DWIDTH-1:0] i_wdata,

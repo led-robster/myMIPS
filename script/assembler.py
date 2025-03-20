@@ -1,10 +1,28 @@
+# USAGE: py assembler.py program.casm
+
 from have_fun import print__pointy_separator
 import os
 import sys
+import argparse
+
+print("argparse version: " + argparse.__version__)
+
+# CREATE PARSER
+parser = argparse.ArgumentParser(
+            prog='assembler',
+            description='CASM assembler',
+            epilog="All rights registered @ led-robster.ecorp"
+            )
+# ADD PARSER ARGS
+parser.add_argument('filename')
+# PARSE
+args= parser.parse_args()
+
+casm_fn = args.filename
 
 # Get the absolute path of the current script and construct the path to 'program.casm'
 script_dir = os.path.dirname(__file__)
-asm_path = os.path.join(script_dir, 'program.casm')
+asm_path = os.path.join(script_dir, casm_fn)
 bins_path = os.path.join(script_dir, 'program.bins')
 ref_path  = os.path.join(script_dir, 'ref_casm.txt')
 

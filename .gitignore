@@ -36,3 +36,6 @@ src/rtl/*.ini
 
 # ignore ref_casm.txt
 script/ref_casm.txt
+
+# ignore assets/
+assets/

@@ -171,10 +171,10 @@ assign DBG_wr_rd = wr_rd;
 assign DBG_addr_rs = addr_rs;
 assign DBG_addr_rt = addr_rt;
 assign DBG_addr_rd = addr_rd;
-assign  DBG_wdata_rd = wdata_rd;
-assign  DBG_rs = rs;
-assign  DBG_rt = rt;
-assign  DBG_pc = PC;
+assign DBG_wdata_rd = wdata_rd;
+assign DBG_rs = rs;
+assign DBG_rt = rt;
+assign DBG_pc = PC;
 assign INSTR_D = control_rom_data;
 
 // SIGNAL ASSIGNMENTS
@@ -190,7 +190,7 @@ reg startup_screening;
 
 // MUXes
 assign silence_mux_out = (mux_silence | mux_silence_d) ? 16'b0 : rom_rdata;
-assign wb_mux_out = mux_wb_dd ? wb_waddr_dd : addr_rd_ddd; 
+assign wb_mux_out = mux_wb_dd ? wb_waddr_dd : addr_rd_ddd;
 assign shamt_imm_mux_out = mux_shamt_imm ? shamt_d : imm_d;
 assign op2_mux_out = mux_op2 ? shamt_imm_mux_out : rt;
 assign res_mux_out = mux_res_dd ? alu_res_dd: ram_rdata;
