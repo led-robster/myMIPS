@@ -80,9 +80,11 @@ wire control_wr_rd;
 wire[3:0] control_wb_waddr;
 wire[2:0] control_shamt;
 wire[5:0] control_immediate;
+wire[11:0] control_jimmediate;
+wire[11:0] mux_jump_immediate_out;
 wire[2:0] control_alu_cmd;
 // MULTIPLEXERS
-wire mux_res, mux_op2, mux_pc, mux_shamt_imm, mux_beq, mux_jump, mux_wb, mux_silence, mux_save_pc;
+wire mux_res, mux_op2, mux_pc, mux_shamt_imm, mux_beq, mux_jump, mux_wb, mux_silence, mux_save_pc, mux_jump_immediate;
 wire[1:0] mux_forward_op1, mux_forward_op2;
 wire mux_forward_ram_wdata, mux_forward_ram_waddr;
 reg mux_forward_ram_wdata_d, mux_forward_ram_waddr_d;
@@ -128,7 +130,7 @@ reg[15:0] res_mux_out_d;
 wire[ROM_AWIDTH-1:0] pc_incr_out;
 wire[15:0] silence_mux_out;
 wire[3:0] wb_mux_out;
-wire[5:0] shamt_imm_mux_out;
+wire[11:0] shamt_imm_mux_out;
 wire[15:0] op2_mux_out;
 wire[15:0] res_mux_out;
 wire[15:0] save_pc_mux_out;
@@ -155,9 +157,9 @@ ram #(.AWIDTH(RAM_AWIDTH), .DWIDTH(RAM_DWIDTH)) ram(.clk(clk), .rst(rst), .i_rd(
 // CONTROL
 control #(.RST_POL(RST_POL)) control(.clk(clk), .rst(rst), .ROM_data(control_rom_data), .rom_rd(control_rom_rd), .ram_rd(control_ram_rd), 
 .ram_wr(control_ram_wr), .rd_rs(control_rd_rs), .rd_rt(control_rd_rt), .addr_rs(control_addr_rs), .addr_rt(control_addr_rt), .addr_rd(control_addr_rd), 
-.wr_rd(control_wr_rd), .wb_waddr(control_wb_waddr), .shamt(control_shamt), .immediate(control_immediate), .ALU_cmd(control_alu_cmd), .RES_MUX(mux_res), 
+.wr_rd(control_wr_rd), .wb_waddr(control_wb_waddr), .shamt(control_shamt), .immediate(control_immediate), .jump_immediate(control_jimmediate), .ALU_cmd(control_alu_cmd), .RES_MUX(mux_res), 
 .OP2_MUX(mux_op2), .PC_MUX(mux_pc), .SHAMT_IMM_MUX(mux_shamt_imm), 
-.BEQ_MUX(mux_beq), .JUMP_MUX(mux_jump), .WB_MUX(mux_wb), .SILENCE_MUX(mux_silence), .SAVE_PC_MUX(mux_save_pc));
+.BEQ_MUX(mux_beq), .JUMP_MUX(mux_jump), .WB_MUX(mux_wb), .SILENCE_MUX(mux_silence), .SAVE_PC_MUX(mux_save_pc), .JUMP_IMMEDIATE_MUX(mux_jump_immediate));
 // HAZARD UNIT
 hazard_unit #(.RST_POL(RST_POL)) hazard_unit(.clk(clk), .rst(rst), .instruction(rom_rdata), .alu_res(alu_res_d), .ma_res(mux_res_d), 
 .FORWARD_OP1_MUX(mux_forward_op1), .FORWARD_OP2_MUX(mux_forward_op2),
@@ -191,7 +193,8 @@ reg startup_screening;
 // MUXes
 assign silence_mux_out = (mux_silence | mux_silence_d) ? 16'b0 : rom_rdata;
 assign wb_mux_out = mux_wb_dd ? wb_waddr_dd : addr_rd_ddd;
-assign shamt_imm_mux_out = mux_shamt_imm ? shamt_d : imm_d;
+assign shamt_imm_mux_out = mux_shamt_imm ? shamt_d : mux_jump_immediate_out;
+assign mux_jump_immediate_out = mux_jump_immediate ? control_jimmediate : imm_d;
 assign op2_mux_out = mux_op2 ? shamt_imm_mux_out : rt;
 assign res_mux_out = mux_res_dd ? alu_res_dd: ram_rdata;
 assign save_pc_mux_out = mux_save_pc_dd ? PC_ddd : res_mux_out;

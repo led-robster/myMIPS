@@ -22,6 +22,7 @@ module control #(
     //
     output [5:0] immediate,
     output [2:0] shamt,
+    output reg[11:0] jump_immediate,
     // ALU
     output reg[2:0] ALU_cmd,
     // MUXes
@@ -33,7 +34,8 @@ module control #(
     output reg JUMP_MUX,
     output reg WB_MUX,
     output reg SILENCE_MUX,
-    output reg SAVE_PC_MUX
+    output reg SAVE_PC_MUX,
+    output reg JUMP_IMMEDIATE_MUX
 );
 
 reg[3:0] state;
@@ -143,6 +145,8 @@ always @(posedge clk or rst) begin
         SAVE_PC_MUX     <= 1'b0;
         wb_wr           <= 1'b0;
         SILENCE_MUX     <= 1'b0;
+        JUMP_IMMEDIATE_MUX <= 1'b0;
+        jump_immediate  <= 0;
 
     end else if (clk) begin
 
@@ -155,6 +159,7 @@ always @(posedge clk or rst) begin
             BEQ_MUX         <= 1'b1;
             WB_MUX          <= 1'b0;
             SAVE_PC_MUX     <= 1'b0;
+            JUMP_IMMEDIATE_MUX <= 1'b0;
             ram_rd          <= 1'b0;
             ram_wr          <= 1'b0;
             wb_wr           <= 1'b0;
@@ -267,6 +272,8 @@ always @(posedge clk or rst) begin
                 JUMP_MUX <= 1'b1;
                 silence_op <= 1'b1;
                 SILENCE_MUX <= 1'b1;
+                JUMP_IMMEDIATE_MUX <= 1'b1;
+                jump_immediate <= instruction[11:0];
                 // + , 0+imm
                 ALU_cmd <= 3'b000;
             end else if (opcode==4'b1000) begin

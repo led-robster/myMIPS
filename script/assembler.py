@@ -217,7 +217,11 @@ def main():
         
         line_list = new_line_list
 
-        opcode = line_list[0].lower()  
+        opcode = line_list[0].lower() 
+
+                 # remove adjacent ; to last string
+        if ";" in line_list[-1]:
+            line_list[-1]=line_list[-1].replace(";", "")
 
         if ';' in line_list:
             # comment in-line with code
@@ -226,7 +230,7 @@ def main():
         else:
             # line w/ only code
             not_opcode = line_list[1:]
-            
+    
 
         if opcode in R_ops:
             # R format
