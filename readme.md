@@ -2,6 +2,8 @@
 
 Project to understand how processors are built.  
 Based on MIPS instruction set.
+16-bit 5-stage CPU core. (16-b registers, 16-b instructions)
+Includes Hazard Unit for *forwarding* data hazards.
 
 ## FEATURES
 
