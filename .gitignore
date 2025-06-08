@@ -6,6 +6,9 @@ filelist_SV.txt
 VHDL_SystemVerilog\
 
 build/*
+!build/clean.do
+!build/compile.do
+!build/modelsim.sh
 !build/readme.md
 !build/Makefile
 *.bak
@@ -30,3 +33,9 @@ src/qrun.out/*
 src/rtl/qrun.out/*
 src/rtl/work/*
 src/rtl/*.ini
+
+# ignore ref_casm.txt
+script/ref_casm.txt
+
+# ignore assets/
+assets/

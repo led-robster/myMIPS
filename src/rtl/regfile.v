@@ -42,7 +42,8 @@ module regfile #(
     input[AWIDTH-1:0] addr_rd,
     input req_rd,
     input[15:0] wdata,
-    output reg[15:0] rs, rt 
+    output reg[15:0] rs, 
+    output reg[15:0] rt 
 );
 
 
