@@ -27,6 +27,7 @@
 // Author: Alessandro Fermanelli
 // Date: 06/2025
 // Description: Ad-hoc module built to test *cpu* operation. Shall generate **regfile** status at every clock cycle and be compared to an expected equivalent.
+// Has access to regfile, pc, RAM and current insturction
 //
 
 `timescale 1ns/1ps
@@ -63,6 +64,8 @@ module cpu_monitor #(
 
 reg DBG_rd_rs_d, DBG_rd_rt_d, DBG_wr_rd_d;
 reg[3:0] DBG_addr_rs_d, DBG_addr_rt_d, DBG_addr_rd_d;
+reg DBG_ram_rd_d;
+reg[7:0] DBG_ram_raddr_d;
 reg[15:0] INSTR_E, INSTR_MA, INSTR_WB;
 
 integer file;
@@ -80,6 +83,9 @@ always @(posedge clk) begin
     INSTR_E <= INSTR_D;
     INSTR_MA <= INSTR_E;
     INSTR_WB <= INSTR_MA;
+    //
+    DBG_ram_rd_d <= DBG_ram_rd;
+    DBG_ram_raddr_d <= DBG_ram_raddr;
 end
 
 // FILE HANDLER
@@ -100,7 +106,7 @@ always @(posedge clk) begin
 
         $fdisplay(file, "#%0t PIPELINE SNAPSHOT : D        | E        | MA        | WB        ", $time);
         $fdisplay(file, "=========================================================================");
-        $fdisplay(file, "        0x%0x       | 0x%0x       | 0x%0x       | 0x%0x       ", INSTR_D, INSTR_E, INSTR_MA, INSTR_WB);
+        $fdisplay(file, "                                0x%0x       | 0x%0x       | 0x%0x       | 0x%0x       ", INSTR_D, INSTR_E, INSTR_MA, INSTR_WB);
 
         // regfile
         //****************************
@@ -126,9 +132,18 @@ always @(posedge clk) begin
         end
         // ram
         //**********************************
-
+        if (DBG_ram_rd) begin
+            $fdisplay(file, "%0t | Read RAM#%d", $time, DBG_ram_raddr);
+        end
+        if (DBG_ram_rd) begin
+            $fdisplay(file, "%0t | Read valid data %d , RAM#%d", $time, DBG_ram_rdata, DBG_ram_raddr_d);
+        end
+        if (DBG_ram_wr) begin
+            $fdisplay(file, "%0t | Write data %d , RAM#%d", $time,  DBG_ram_wdata, DBG_ram_waddr);
+        end
         // PC
         //**********************************
+        $fdisplay(file, "%0t | Current PC is ", $time, DBG_pc);
 
 
         $fdisplay(file, "");

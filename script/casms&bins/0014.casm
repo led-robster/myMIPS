@@ -1,0 +1,22 @@
+; test 0014
+
+ADDI $r2, $r1, d'10
+AND $r3, $r1, $r2
+SLT $r1, $r3, $r2
+ADD $r5, $r1, $r2
+SUB $r6, $r5, $r2
+OR $r6, $r5, $r2
+SLTI $r2, $r6, h'F
+SLL $r5, $r7, d'3
+SRL $r3, $r1, d'3
+LW $r7, $r2, d'10
+SW $r3, $r2, d'10
+BEQ $r3, $r1, d'1 ; if $r0==$r1 then PC = PC + 2 + 2 * offset
+J h'2
+JR $r1
+JAL h'2
+; SLL x 4 , to see the effect of write phase 1 and read phase 2, and confirm the behaviour of forwarding
+SLL $r5, $r7, d'3
+SLL $r4, $r5, d'4
+SLL $r3, $r5, d'5
+SLL $r2, $r5, d'6

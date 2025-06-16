@@ -1,4 +1,6 @@
 # USAGE: py assembler.py program.casm
+# check for !!! TODO
+# general TODO : build an ad-hoc error logging system, --debug , -d
 
 from have_fun import print__pointy_separator
 import os
@@ -7,7 +9,9 @@ import argparse
 
 print("argparse version: " + argparse.__version__)
 
-# CREATE PARSER
+# ===========================================================
+#                       PARSER
+# ===========================================================
 parser = argparse.ArgumentParser(
             prog='assembler',
             description='CASM assembler',
@@ -20,14 +24,28 @@ args= parser.parse_args()
 
 casm_fn = args.filename
 
+
+# ===========================================================
+#           FILE PATH MANAGEMENT
+# ===========================================================
 # Get the absolute path of the current script and construct the path to 'program.casm'
 script_dir = os.path.dirname(__file__)
 asm_path = os.path.join(script_dir, casm_fn)
 bins_path = os.path.join(script_dir, 'program.bins')
 ref_path  = os.path.join(script_dir, 'ref_casm.txt')
 
+# ===========================================================
+#           SYSTEM PARAMETER
+# ===========================================================
+"""
+    GENERATE_REF is a boolean, when True then the ref_casm.txt is generated based on passed casm file.
+    !!! TODO : add this to argparse
+"""
 GENERATE_REF = True
 
+# ===========================================================
+#           CONSTANTS, DICTS & LISTS
+# ===========================================================
 BANNER = "XX.YY.ZZ INSTRUCTION SNAPSHOT: D        | E        | MA        | WB        |\n" \
 "=================================================================\n"
 
@@ -64,17 +82,67 @@ Icode_dict = {"addi": "0001",
 Jcode_dict = {"j": "0111",
               "jal": "1000"}
 
+# ===========================================================
+# SNAP REGFILE
+# ===========================================================
+"""
+    The snap_regfile is a fundamental variable when generating the ref_casm.txt. Its role is to register a snapshot of the current state of the regfile,
+    as expected by the casm file. Having a copy of the regfile expected and comparing it with the regfile in Verilog, provides a fundamental diff for validating the design.
+    N.B.: this has the strong side of validating also the hazard_unit with the forwarding technique.
+"""
+# SNAPSHOT of the regfile, cycle accurate
+snap_regfile = {0: 0,
+                1: 0,
+                2: 0,
+                3: 0,
+                4: 0,
+                5: 0,
+                6: 0,
+                7: 0,
+                8: 0,
+                9: 0,
+                10: 0,
+                11: 0,
+                12: 0,
+                13: 0,
+                14: 0,
+                15: 0}
+"""
+    update_snap(regd, value) ; updates the snap_regfile with a specified value at the specified register
+    regd: int, destination register
+    value: int, value that updates the snap_regfile
+"""
+def update_snap(regd, value):
+    snap_regfile[regd] = value
+    return
+
+"""
+    assign_reg_bin(reg) ; e.g. translates "$r1" in "001"
+    reg: string, register to find dictonary correspondence
+"""
 # '$r0' -> 000 ; '$r1' -> 001 ; ...
 def assign_reg_bin(reg):
     return reg_dict[reg]
 
-def check_range(imm, bit_size):
+
+"""
+    check_range_imm(imm, bit_size) ; checks if the immediate is in the specified range based on bit_size ; e.g. check_range_imm(300, 4)=False
+    imm: string, immediate value
+    bit_size: int, specifies the range upper limit = 2**(bit_size)-1
+    !!! TODO : can be generalized not only for immediates
+"""
+def check_range_imm(imm, bit_size):
     # immediates are 6 bit wide
     if int(imm)>((2**bit_size)-1):
         return False
     else:
         return True
 
+
+"""
+    assign_imm_bin(imm) ; converts immediate string in binary string of length=6 bits, as in SPECS
+    imm: string, immediate value
+"""
 def assign_imm_bin(imm):
     if imm[0]=='d':
         # decimal
@@ -109,6 +177,11 @@ def assign_imm_bin(imm):
 
     return ret_val
 
+
+"""
+    assign_shamt_bin(shamt) ; converts shamt string in binary string of length=3 bits, as in SPECS
+    imm: string, immediate value
+"""
 def assign_shamt_bin(shamt):
 
     if shamt[0]=='d':
@@ -132,7 +205,7 @@ def assign_shamt_bin(shamt):
         binary_string_padded = binary_string.zfill(3)
         ret_val = binary_string_padded
 
-    if check_range(integer_value,3):
+    if check_range_imm(integer_value,3):
         pass
     else:
         print("ERROR!!!")
@@ -219,7 +292,7 @@ def main():
 
         opcode = line_list[0].lower() 
 
-                 # remove adjacent ; to last string
+        # remove adjacent ; to last string
         if ";" in line_list[-1]:
             line_list[-1]=line_list[-1].replace(";", "")
 
@@ -231,26 +304,47 @@ def main():
             # line w/ only code
             not_opcode = line_list[1:]
     
-
+        ## OP: R format
         if opcode in R_ops:
-            # R format
             
             Opcode_bin = "0000"
+            # sll and srl variation
             if opcode=="sll" or opcode=="srl":
                 rs = not_opcode[0]
                 rt = not_opcode[1]
                 rd = not_opcode[2] # this is actually the shamt
                 rd_bin = assign_shamt_bin(rd)
+            # jr variation
             elif opcode=="jr":
                 rs = not_opcode[0]
                 rt = "$r0"
                 rd = "$r0"
                 rd_bin = assign_reg_bin(rd)
+            # vanilla
             else:
                 rs = not_opcode[1]
                 rt = not_opcode[2] # or shamt
                 rd = not_opcode[0]
                 rd_bin = assign_reg_bin(rd)
+                # SNAP REGFILE UPDATE
+                    # extract number of reg
+                rs_idx=int(rs[-1])
+                rt_idx=int(rt[-1])
+                rd_idx=int(rd[-1])
+                if opcode=="add":
+                    update_snap(rd_idx, snap_regfile[rs_idx]+snap_regfile[rt_idx])
+                elif opcode=="and":
+                    update_snap(rd_idx, snap_regfile[rs_idx]&snap_regfile[rt_idx])
+                elif opcode=="or":
+                    update_snap(rd_idx, snap_regfile[rs_idx]|snap_regfile[rt_idx])
+                elif opcode=="sub":
+                    update_snap(rd_idx, snap_regfile[rs_idx]-snap_regfile[rt_idx])
+                elif opcode=="slt":
+                    if snap_regfile[rs_idx]<snap_regfile[rt_idx]:
+                        bit_set=1
+                    else:
+                        bit_set=0
+                    update_snap(rd_idx, bit_set)
 
 
             # reg binary assignment
@@ -270,7 +364,7 @@ def main():
             rt = not_opcode[1]
             immediate = not_opcode[2]
             immediate_int = integer_it(immediate)
-            if check_range(immediate_int, 6):
+            if check_range_imm(immediate_int, 6):
                 imm_bin = assign_imm_bin(immediate)
                 rs_bin = assign_reg_bin(rs)
                 rt_bin = assign_reg_bin(rt)
@@ -310,17 +404,25 @@ def main():
 
 
         if GENERATE_REF:
+            # instruction pipeline
             instr_pipeline[1:4] = instr_pipeline[0:3]
             instr_pipeline[0] = hex(int(line_bin, 2))
+            # rs pipeline
             rs_pipeline[1:4] = rs_pipeline[0:3]
             rs_pipeline[0] = register_source
+            # rt pipeline
             rt_pipeline[1:4] = rt_pipeline[0:3]
             rt_pipeline[0] = register_temp
+            # rd pipeline
             rd_pipeline[1:4] = rd_pipeline[0:3]
             rd_pipeline[0] = register_dest
+            # instructione pipeline HEADER
             pipeline = f"{instr_pipeline[0]}        | {instr_pipeline[1]}        | {instr_pipeline[2]}        | {instr_pipeline[3]}        |\n"
+            # regfile access BODY
             regfile_content= f"Read rs#{rs_pipeline[0]}\n"\
-            f"Read data rs#{rs_pipeline[1]}"
+            # f"Read rs#{rs_pipeline[1]} data: {snap_regfile[rs_pipeline[1]]}\n"\
+            # f"Read rt#{rt_pipeline[0]}"\
+            # f"Read rt#{rt_pipeline[1]} data: {snap_regfile[rt_pipeline[1]]}"
             fref.write(BANNER)
             fref.write(pipeline)
             fref.write(regfile_content)
