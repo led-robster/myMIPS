@@ -1,4 +1,4 @@
 ; TEST JUMP FUNCTIONALITY
 ;
-ADDI $r2, $r1, d'10;
-J h'FF
+ADDI $r2, $r2, d'10;
+J h'00

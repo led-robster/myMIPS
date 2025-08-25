@@ -6,10 +6,11 @@ rtl_dir := ../src/rtl
 modelsim_dir = C:\Microsemi\Libero_SoC_v11.9\ModelsimPro\win32acoem
 
 # source_library := control.v ram.v regfile.v rom.v
-source_library := cpu_monitor.v alu.v carry_lookahead.v control.v cpu.v debouncer.v hazard_unit.v partial_FA.v ram.v regfile.v rom.v rst_unit.v small_lookahead.v
+source_library := cpu_monitor.v alu.v carry_lookahead.v control.v cpu.v debouncer.v hazard_unit.v partial_FA.v ram.v regfile.v rom.v rst_unit.v small_lookahead.v \
+	open_mem.v
 # every source prefixed by parent dir
 source_library_path := $(addprefix $(rtl_dir)/, $(source_library))
-simulation_library := $(tb_dir)/tb.v $(tb_dir)/tb_cpu.v
+simulation_library := $(tb_dir)/tb.v $(tb_dir)/tb_cpu.v $(tb_dir)/tb_open_mem.v
 top_library_path := $(top_dir)/top.v
 
 # Timestamp file to track compilation

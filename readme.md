@@ -45,5 +45,6 @@ iverilog:
 
 ## TODO
 
-[] test regfile, specifically write in phase1 and read in phase2
-[] ISA green card
+[] test regfile, specifically write in phase1 and read in phase2  
+[] ISA green card  
+[] case[0011] : check why the instruction is extended for 2 ccs after jump instruction  

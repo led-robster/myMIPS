@@ -1,0 +1,45 @@
+[*]
+[*] GTKWave Analyzer v3.3.100 (w)1999-2019 BSI
+[*] Mon Aug 25 11:40:12 2025
+[*]
+[dumpfile] "C:\Users\fea\Documents\PERSONAL_AREA\myMIPS\src\src\tb\test.fst"
+[savefile] "C:\Users\fea\Documents\PERSONAL_AREA\myMIPS\src\tb\config.gtkw"
+[timestart] 29999850700
+[size] 1920 1009
+[pos] -35 -35
+*-15.931464 30000084000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] tb_cpu.
+[sst_width] 197
+[signals_width] 206
+[sst_expanded] 1
+[sst_vpaned_height] 297
+@28
+tb_cpu.cpu_inst.clk
+@22
+tb_cpu.cpu_inst.PC[7:0]
+@28
+tb_cpu.cpu_inst.rd_rs
+tb_cpu.cpu_inst.rd_rt
+tb_cpu.cpu_inst.wr_rd
+@22
+tb_cpu.cpu_inst.addr_rs[3:0]
+tb_cpu.cpu_inst.addr_rt[3:0]
+tb_cpu.cpu_inst.addr_rd[3:0]
+tb_cpu.cpu_inst.wdata_rd[15:0]
+tb_cpu.cpu_inst.rs[15:0]
+tb_cpu.cpu_inst.rt[15:0]
+@28
+tb_cpu.cpu_inst.ram_rd
+tb_cpu.cpu_inst.ram_wr
+@22
+tb_cpu.cpu_inst.ram_raddr[7:0]
+tb_cpu.cpu_inst.ram_waddr[7:0]
+tb_cpu.cpu_inst.ram_wdata[15:0]
+@23
+tb_cpu.cpu_inst.ram_rdata[15:0]
+@22
+tb_cpu.cpu_inst.control_rom_data[15:0]
+@20000
+-
+[pattern_trace] 1
+[pattern_trace] 0

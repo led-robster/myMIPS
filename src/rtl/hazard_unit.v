@@ -35,6 +35,7 @@ module hazard_unit #(
 ) (
     input clk,
     input rst,
+    input en,
     // instruction
     input wire[15:0] instruction,
     input wire[15:0] alu_res,
@@ -127,80 +128,88 @@ always @(posedge clk or rst) begin
         FORWARD_RAM_WDATA_MUX <= 0;
 
         
-        if (opcode==0) begin
-        //RFORMAT
-            // shift_register = [reg_cold|reg_hot]
-            forward_regs <= {forward_regs[2:0], rd[2:0]};
-            // HAZARD!
-            if (rs==forward_regs[5:3]) begin
-                // cold
-                FORWARD_OP1_MUX <= 2;
-            end
-            if (rs==forward_regs[2:0]) begin
-                FORWARD_OP1_MUX <= 1;
-            end
-            if (rt==forward_regs[5:3]) begin
-                // cold
-                FORWARD_OP2_MUX <= 2;
-            end
-            if (rt==forward_regs[2:0]) begin
-                // hot
-                FORWARD_OP2_MUX <= 1;
+        if (en==1) begin
+            if (opcode==0) begin
+            //RFORMAT
+                // shift_register = [reg_cold|reg_hot]
+                forward_regs <= {forward_regs[2:0], rd[2:0]};
+                // HAZARD!
+                if (rs==forward_regs[5:3]) begin
+                    // cold
+                    FORWARD_OP1_MUX <= 2;
+                end
+                if (rs==forward_regs[2:0]) begin
+                    FORWARD_OP1_MUX <= 1;
+                end
+                if (rt==forward_regs[5:3]) begin
+                    // cold
+                    FORWARD_OP2_MUX <= 2;
+                end
+                if (rt==forward_regs[2:0]) begin
+                    // hot
+                    FORWARD_OP2_MUX <= 1;
+                end
             end
         end
 
         //IFORMAT [WIP]
         // addi + slti
         // shift_register = [reg_cold|reg_hot]
-        if (opcode==1 || opcode==3) begin
-            forward_regs <= {forward_regs[2:0], rt[2:0]};
-            if (rs==forward_regs[5:3]) begin
-                // cold
-                FORWARD_OP2_MUX <= 2;
-            end
-            if (rs==forward_regs[2:0]) begin
-                // hot
-                FORWARD_OP2_MUX <= 1;
+        if(en==1) begin
+            if (opcode==1 || opcode==3) begin
+                forward_regs <= {forward_regs[2:0], rt[2:0]};
+                if (rs==forward_regs[5:3]) begin
+                    // cold
+                    FORWARD_OP2_MUX <= 2;
+                end
+                if (rs==forward_regs[2:0]) begin
+                    // hot
+                    FORWARD_OP2_MUX <= 1;
+                end
             end
         end
-        
 
         // lw
-        if (opcode==4'b0100) begin
-            // destination address, and one of their operands is a register
-            forward_regs <= {forward_regs[2:0], rt[2:0]};
-            if (rs==forward_regs[5:3]) begin
-                // cold
-                FORWARD_OP1_MUX <= 2;
-            end
-            if (rs==forward_regs[2:0]) begin
-                // hot
-                FORWARD_OP1_MUX <= 1;
+        if (en==1) begin
+            if (opcode==4'b0100) begin
+                // destination address, and one of their operands is a register
+                forward_regs <= {forward_regs[2:0], rt[2:0]};
+                if (rs==forward_regs[5:3]) begin
+                    // cold
+                    FORWARD_OP1_MUX <= 2;
+                end
+                if (rs==forward_regs[2:0]) begin
+                    // hot
+                    FORWARD_OP1_MUX <= 1;
+                end
             end
         end
 
         // sw
-        if (opcode==4'b0101) begin
-            // both operands are registers
-            // Store rt in RAM[rs+offset]
-            // if (rs==forward_regs[5:3]) begin
-            //     // cold
-            //     FORWARD_RAM_MUX <= 2;
-            // end
-            if (rs==forward_regs[2:0]) begin
-                // ONLY hot
-                FORWARD_RAM_WADDR_MUX <= 1;
-            end
-            // if (rt==forward_regs[5:3]) begin
-            //     // cold
-            //     FORWARD_RAM_MUX <= 2;
-            // end
-            if (rt==forward_regs[2:0]) begin
-                // ONLY hot
-                FORWARD_RAM_WDATA_MUX <= 1;
+        if (en==1) begin
+            if (opcode==4'b0101) begin
+                // both operands are registers
+                // Store rt in RAM[rs+offset]
+                // if (rs==forward_regs[5:3]) begin
+                //     // cold
+                //     FORWARD_RAM_MUX <= 2;
+                // end
+                if (rs==forward_regs[2:0]) begin
+                    // ONLY hot
+                    FORWARD_RAM_WADDR_MUX <= 1;
+                end
+                // if (rt==forward_regs[5:3]) begin
+                //     // cold
+                //     FORWARD_RAM_MUX <= 2;
+                // end
+                if (rt==forward_regs[2:0]) begin
+                    // ONLY hot
+                    FORWARD_RAM_WDATA_MUX <= 1;
+                end
             end
         end
 
+        
         // beq
         // if (opcode==4'b0110) begin
         //     if (rs==forward_regs[5:3]) begin

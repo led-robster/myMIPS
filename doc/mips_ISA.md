@@ -1,3 +1,5 @@
+# MIPS
+
 MIPS ISA instructions include:
 |Name|Assembly code|Operation|Format|Comments|Include in MIPS16?|
 |----|-------------|---------|------|--------|------------------|
@@ -49,7 +51,6 @@ MIPS ISA instructions include:
 * and
 * or
 * andi
-* ori
 * sll
 * srl
 * lw
@@ -58,6 +59,8 @@ MIPS ISA instructions include:
 * j
 * jr
 * jal
+* slt
+* slti
 
 Number of registers : 8  
 Width of registers : 16 bit
@@ -65,6 +68,8 @@ Width of registers : 16 bit
 
 
 ## INSTRUCTION FORMATs
+
+### CLASSIC MIPS
 In a 32bit MIPS yhe format is as listed below :
 
 |format||||fields|||used by|
@@ -116,9 +121,13 @@ Why this choice?
 Since there is no instruction suited for smaller or bigger words. For example in a32-bit MIPS the memory is byte-addressable since there are the reduced instructions like 'lb' to load a byte or 'lh' for loading halfwords.  
 In a memory is important memory alignment to grant speed to overall instruction execution. For my solution I'm adopting a word-addressable memory, that is aligned by definition. This implementation has the **pro** that bypasses memory alignment checks (speeding architecture), and a **con** that doesn't implement byte operations, but since we dont care about those is not  a problem.   
 
-## SPECIAL FUNCTION REGISTERS
-The **ZERO** register.  
-The **RETURN ADDRESS** register.  
-the **ALU STATUS** register.  
-The **PC**.  
-The **ERROR CODE** register.
+## REGISTER TABLE
+
+|NAME|DESCRIPTION|
+|-|-|
+|$r0|always zero|
+|$r1-$r7|GP regs, adressed by casm|
+|$r8|stack pointer|
+|$r9|return address|
+|$r10|sfr10 (alu status)|
+|$r11|sfr11 (error code register)|

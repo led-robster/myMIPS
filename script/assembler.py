@@ -359,6 +359,8 @@ def main():
                 register_source = str(int(rs_bin,2))
                 register_temp = str(int(rt_bin, 2))
 
+
+        # I-FORMAT
         elif opcode in I_ops:
             rs = not_opcode[0]
             rt = not_opcode[1]

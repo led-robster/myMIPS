@@ -48,6 +48,7 @@ module control #(
     output reg[3:0] addr_rd,
     output reg[3:0] wb_waddr,
     output wr_rd,
+    input[15:0] reg_zero,
     //
     output [5:0] immediate,
     output [2:0] shamt,
@@ -133,20 +134,20 @@ always @(posedge clk or negedge rst) begin
 end
 
 assign instruction = ROM_data;
-// assign addr_rs = {1'b0, instruction[11:9]};
-// assign addr_rt = {1'b0, instruction[8:6]};
-// assign addr_rd = {1'b0, instruction[5:3]};
 
 wire op_switch; // used for sll and srl
 assign op_switch = (opcode==0 & Fcode==5 | opcode==0 & Fcode==6) ? (1) : (0);
 
+wire bank_regfile;
+assign bank_regfile = reg_zero[0];
+
 always @(*) begin
-    addr_rs <= {1'b0, instruction[11:9]};
-    addr_rt <= {1'b0, instruction[8:6]};
-    addr_rd <= {1'b0, instruction[5:3]};
+    addr_rs <= {bank_regfile, instruction[11:9]};
+    addr_rt <= {bank_regfile, instruction[8:6]};
+    addr_rd <= {bank_regfile, instruction[5:3]};
     if (op_switch) begin
-        addr_rs <= {1'b0, instruction[8:6]};
-        addr_rd <= {1'b0, instruction[11:9]};
+        addr_rs <= {bank_regfile, instruction[8:6]};
+        addr_rd <= {bank_regfile, instruction[11:9]};
     end
 end
 

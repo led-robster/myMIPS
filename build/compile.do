@@ -1,8 +1,18 @@
+# Script: compile.do
+# Usage: 
+# Description: 
+# Author: 
+
+
+# PARSE POSITIONAL ARGS
+set TB_ENTITY $1
+
+
 # clean before compiling 
 source clean.do
 
 # USER, desired tb/top
-set top_unit "mips_verif.tb"
+set top_unit "mips_verif.$TB_ENTITY"
 
 # set source dirs
 set rtl_dir "../src/rtl"
@@ -21,7 +31,7 @@ set tb_dir "../src/tb"
 #
 set source_library_path [glob -directory "../src/rtl/" *.v *.sv]
 # USER
-set tb_library "../src/tb/tb_debouncer.sv ../src/tb/tb_ram.sv ../src/tb/tb_rom.sv ../src/tb/tb_alu.sv"
+set tb_library "../src/tb/tb_debouncer.sv ../src/tb/tb_ram.sv ../src/tb/tb_rom.sv ../src/tb/tb_alu.sv ../src/tb/tb_cpu.v"
 
 # create library for modelsim
 vlib mips_design
@@ -47,10 +57,12 @@ foreach file $tb_library {
 vsim -L mips_design -L mips_verif $top_unit
 
 # USER, load ROM memory
-mem load -infile ../src/mem/program.mem -format bin /tb/top_inst/cpu_inst/rom
+#mem load -infile ../src/mem/program.mem -format bin /$TB_ENTITY/top_inst/cpu_inst/rom
+mem load -infile ../src/mem/program.mem -format bin /$TB_ENTITY/cpu_inst/rom
 
 # USER, load RAM memory
-mem load -infile ../src/mem/data.mem -format bin /tb/top_inst/cpu_inst/ram
+#mem load -infile ../src/mem/data.mem -format bin /$TB_ENTITY/top_inst/cpu_inst/ram
+mem load -infile ../src/mem/data.mem -format bin /$TB_ENTITY/cpu_inst/ram
 
 # generate vcd for external consultance
 vcd file test_vcd.vcd
