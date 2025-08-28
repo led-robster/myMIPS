@@ -26,9 +26,11 @@
 // Filename: alu.v
 // Author: Alessandro Fermanelli
 // Date: 06/2025
+// Dependency: carry_lookahead.v
 // Description: Arithmetic Logic Unit. Implements basic math operations in 16-b.
-// Sum, Difference, Less Than, SRL, SLL, and, or, equal .
-//
+//      Sum, Difference, Less Than, SRL, SLL, and, or, equal .
+//      Arithmetic on 16-b signed. MAX_REPRESENTATION_VALUE= 2**15-1 (0111_1111_1111_1111)= 32767, MIN_REPRESENTATION_VALUE= -2**15 (1000_0000_0000_0000)= -32768
+//      Addition and Subtraction implemented with carry-look-ahead.
 
 module alu (
     input[15:0] OP1,
@@ -58,7 +60,6 @@ always @(*) begin
 
     if (cmd==3'b000) begin
         // +
-        //
         cl_A = OP1;
         cl_B = OP2;
         cl_Ci = 1'b0;
@@ -70,7 +71,7 @@ always @(*) begin
         cl_Ci = 1'b1;
         RES = cl_C;
     end else if (cmd==3'b010) begin
-        // <<
+        // <<, sll
         RES = OP1 << OP2;
     end else if (cmd==3'b011) begin
         // <
@@ -80,13 +81,13 @@ always @(*) begin
             RES = 16'd0;
         end
     end else if (cmd==3'b100) begin
-        // >>
+        // >>, srl
         RES = OP1 >> OP2;
     end else if (cmd==3'b101) begin
-        // and
+        // AND
         RES = OP1 & OP2;
     end else if (cmd==3'b110) begin
-        // or
+        // OR
         RES = OP1 | OP2;
     end else if (cmd==3'b111) begin
         // ==

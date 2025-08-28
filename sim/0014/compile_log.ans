@@ -1,0 +1,62 @@
+# Aldec, Inc. Riviera-PRO version 2023.04.112.8911 built for Windows64 on May 12, 2023.
+# HDL, SystemC, and Assertions simulator, debugger, and design environment.
+# (c) 1999-2023 Aldec, Inc. All rights reserved.
+set TB_ENTITY $1
+# tb_cpu
+set EXEC_BATCH $2
+# 1
+source clean.do
+# CLEANING FROM LAST COMPILATION...
+set top_unit "mips_verif.$TB_ENTITY"
+# mips_verif.tb_cpu
+set rtl_dir "../src/rtl"
+# ../src/rtl
+set top_dir "../src/top"
+# ../src/top
+set tb_dir "../src/tb"
+# ../src/tb
+set source_library_path [glob -directory "../src/rtl/" *.v *.sv]
+# ../src/rtl/alu.v ../src/rtl/btt_generator.v ../src/rtl/cache.v ../src/rtl/carry_lookahead.v ../src/rtl/control.v ../src/rtl/cpu.v ../src/rtl/cpu_monitor.v ../src/rtl/debouncer.v ../src/rtl/hazard_unit.v ../src/rtl/open_mem.v ../src/rtl/partial_FA.v ../src/rtl/ram.v ../src/rtl/regfile.v ../src/rtl/rom.v ../src/rtl/rst_unit.v ../src/rtl/small_lookahead.v
+set tb_library "../src/tb/tb_debouncer.sv ../src/tb/tb_ram.sv ../src/tb/tb_rom.sv ../src/tb/tb_alu.sv ../src/tb/tb_cpu.v"
+# ../src/tb/tb_debouncer.sv ../src/tb/tb_ram.sv ../src/tb/tb_rom.sv ../src/tb/tb_alu.sv ../src/tb/tb_cpu.v
+vlib mips_design
+# ALIB: Library "mips_design" attached.
+# mips_design = C:/Users/fea/Documents/PERSONAL_AREA/myMIPS/build/mips_design/mips_design.lib
+vlib mips_verif
+# ALIB: Library "mips_verif" attached.
+# mips_verif = C:/Users/fea/Documents/PERSONAL_AREA/myMIPS/build/mips_verif/mips_verif.lib
+foreach file $source_library_path {
+    puts "Compiling: $file"; # Optional: Print the file being compiled
+    vlog -work mips_design $file; # Compile the file into the mips_design library
+}
+# Compiling: ../src/rtl/alu.v
+# ALOG: Warning: VCP2515 C:/Users/fea/Documents/PERSONAL_AREA/myMIPS/src/rtl/alu.v : (53, 74): Undefined module: carry_lookahead was used. Port connection rules will not be checked at such instantiations.
+# ALOG: Unit top modules: alu.
+# ALOG: Compile success 0 Errors 1 Warnings  Analysis time: 0[s].
+# ALOG: done
+# Compiling: ../src/rtl/btt_generator.v
+# ALOG: Warning: VCP2640 No modules defined.
+# ALOG: Compile success 0 Errors 1 Warnings  Analysis time: 0[s].
+# ALOG: done
+# Compiling: ../src/rtl/cache.v
+# ALOG: Unit top modules: cache.
+# ALOG: Compile success 0 Errors 0 Warnings  Analysis time: 0[s].
+# ALOG: done
+# Compiling: ../src/rtl/carry_lookahead.v
+# ALOG: Warning: VCP2515 C:/Users/fea/Documents/PERSONAL_AREA/myMIPS/src/rtl/carry_lookahead.v : (44, 89): Undefined module: small_lookahead was used. Port connection rules will not be checked at such instantiations.
+# ALOG: Compile success 0 Errors 1 Warnings  Analysis time: 0[s].
+# ALOG: done
+# Compiling: ../src/rtl/control.v
+# ALOG: Unit top modules: control.
+# ALOG: Compile success 0 Errors 0 Warnings  Analysis time: 0[s].
+# ALOG: done
+# Compiling: ../src/rtl/cpu.v
+# ALOG: Warning: VCP2515 C:/Users/fea/Documents/PERSONAL_AREA/myMIPS/src/rtl/cpu.v : (178, 102): Undefined module: rom was used. Port connection rules will not be checked at such instantiations.
+# ALOG: Warning: VCP2515 C:/Users/fea/Documents/PERSONAL_AREA/myMIPS/src/rtl/cpu.v : (181, 109): Undefined module: regfile was used. Port connection rules will not be checked at such instantiations.
+# ALOG: Warning: VCP2515 C:/Users/fea/Documents/PERSONAL_AREA/myMIPS/src/rtl/cpu.v : (186, 85): Undefined module: ram was used. Port connection rules will not be checked at such instantiations.
+# ALOG: Warning: VCP2515 C:/Users/fea/Documents/PERSONAL_AREA/myMIPS/src/rtl/cpu.v : (193, 8): Undefined module: wfhwhf was used. Port connection rules will not be checked at such instantiations.
+# ALOG: Warning: VCP2515 C:/Users/fea/Documents/PERSONAL_AREA/myMIPS/src/rtl/cpu.v : (197, 158): Undefined module: hazard_unit was used. Port connection rules will not be checked at such instantiations.
+# ALOG: Error: VCP2000 C:/Users/fea/Documents/PERSONAL_AREA/myMIPS/src/rtl/cpu.v : (193, 7): Syntax error. Unexpected token: ;.
+# ALOG: Compile failure 1 Errors 5 Warnings  Analysis time: 0[s].
+# SCRIPTER: Error: compile.do : (45, 1): Script execution terminated due to error(s).
+exit

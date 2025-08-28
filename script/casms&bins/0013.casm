@@ -1,7 +1,9 @@
-; TEST 0013
+; TEST BYPASS POLICY
 ;
-ADD $r2, $r1, $r3 ; $r2 = $r1 + $ r3
-SUB $r4, $r5, $r6
-OR $r3, $r5, $r6
-AND $r2, $r7, $r3
-SLT $r5, $r1, $r3
+ADDI $r7, $r5, d'20 ; r5=20
+ADDI $r2, $r1, d'10 ; r1=10
+ADD $r2, $r1, $r3 ; r2 = r1 + r3 = 10
+SUB $r4, $r5, $r6 ; r4 = r5 - r6 = 20
+OR $r3, $r5, $r6 ; r3 = r5 OR r6 = 20
+AND $r2, $r7, $r3 ; r2 = r7 AND r3 = 0
+SLT $r5, $r1, $r3 ; r5 = 1

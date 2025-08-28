@@ -1,0 +1,22 @@
+[1;33mWARNINGS[0m
+======================================================================
+# ALOG: Warning: VCP2515 C:/Users/fea/Documents/PERSONAL_AREA/myMIPS/src/rtl/alu.v : (53, 74): Undefined module: carry_lookahead was used. Port connection rules will not be checked at such instantiations.
+# ALOG: Compile success 0 Errors 1 Warnings  Analysis time: 0[s].
+# ALOG: Warning: VCP2640 No modules defined.
+# ALOG: Compile success 0 Errors 1 Warnings  Analysis time: 0[s].
+# ALOG: Compile success 0 Errors 0 Warnings  Analysis time: 0[s].
+# ALOG: Warning: VCP2515 C:/Users/fea/Documents/PERSONAL_AREA/myMIPS/src/rtl/carry_lookahead.v : (44, 89): Undefined module: small_lookahead was used. Port connection rules will not be checked at such instantiations.
+# ALOG: Compile success 0 Errors 1 Warnings  Analysis time: 0[s].
+# ALOG: Compile success 0 Errors 0 Warnings  Analysis time: 0[s].
+# ALOG: Warning: VCP2515 C:/Users/fea/Documents/PERSONAL_AREA/myMIPS/src/rtl/cpu.v : (178, 102): Undefined module: rom was used. Port connection rules will not be checked at such instantiations.
+# ALOG: Warning: VCP2515 C:/Users/fea/Documents/PERSONAL_AREA/myMIPS/src/rtl/cpu.v : (181, 109): Undefined module: regfile was used. Port connection rules will not be checked at such instantiations.
+# ALOG: Warning: VCP2515 C:/Users/fea/Documents/PERSONAL_AREA/myMIPS/src/rtl/cpu.v : (186, 85): Undefined module: ram was used. Port connection rules will not be checked at such instantiations.
+# ALOG: Warning: VCP2515 C:/Users/fea/Documents/PERSONAL_AREA/myMIPS/src/rtl/cpu.v : (193, 7): Undefined module: fjjfh was used. Port connection rules will not be checked at such instantiations.
+# ALOG: Warning: VCP2515 C:/Users/fea/Documents/PERSONAL_AREA/myMIPS/src/rtl/cpu.v : (197, 158): Undefined module: hazard_unit was used. Port connection rules will not be checked at such instantiations.
+# ALOG: Compile failure 1 Errors 5 Warnings  Analysis time: 0[s].
+======================================================================
+[1;31mERRORS[0m
+======================================================================
+# ALOG: Error: VCP2000 C:/Users/fea/Documents/PERSONAL_AREA/myMIPS/src/rtl/cpu.v : (193, 6): Syntax error. Unexpected token: ;.
+# ALOG: Compile failure 1 Errors 5 Warnings  Analysis time: 0[s].
+# SCRIPTER: Error: compile.do : (45, 1): Script execution terminated due to error(s).

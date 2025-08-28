@@ -1,7 +1,9 @@
-# usage: ./modelsim.sh -f test_alu.vcd -e tb
-
-
 #!/bin/bash
+
+# usage: ./modelsim.sh -f test_alu.vcd -e tb -t 0015 -b
+# TAGS: 
+#         *) !!!USERPARAM ; requires manual condiguration/parametrizaton from user when adding/removing relative information
+#         *) !!!DEPRECATED ; legacy lines of code, kept for reference
 
 
 # INITIALIZATION
@@ -9,6 +11,14 @@ FILE=""
 TB_ENTITY=""
 VERBOSE=false
 BUILD_DIR="C:\\Users\\fea\\Documents\\PERSONAL_AREA\\myMIPS\\build"
+SIM_TAG=""
+SIM_TAG_INSERTED=false
+ROM_SIZE=256 # !!!USERPARAM  ,  size of the ROM as in VHDL files
+EXEC_BATCH=false #execute batch of simulations
+BATCH=("0011" "0012" "0013" "0014" "0015") # !!!USERPARAM  , list of batch
+TB_SUITE=("tb" tb_cpu) # !!!USERPARAM  ,  list of testbench entities
+TB_ALL=false
+
 
 # FUNCTION UTILITIES
 
@@ -18,21 +28,48 @@ log() {
   fi
 }
 
+zero_line(){
+  local num_loop=$1
+  for ((i=0; i<num_loop; i++)); do
+    echo -e "0000000000000000"
+  done
+}
+
+print_separator() {
+
+  echo "======================================================================"
+
+}
+
 # ARGUMENT PARSER 
 
-while getopts "f:e:vh" opt; do
+while getopts "f:e:vht:b" opt; do
   case $opt in
     f) 
       FILE="$OPTARG"
       ;;
     e)
       TB_ENTITY="$OPTARG"
+      if [ $OPTARG = "ALL" ]; then
+        echo "You selected ALL TB_SUITE."
+        sleep 1
+        TB_ALL=true
+      fi
+      ;;
+    t)
+      # tag is ignored when -b
+      SIM_TAG="$OPTARG"
+      SIM_TAG_INSERTED=true
+      # if no tag is used, is expected to have a valid programmed program.mem
+      ;;
+    b)
+      EXEC_BATCH=true
       ;;
     v)
       VERBOSE=true
       ;;
     h)
-      echo "Usage: $0 [-f vcd_filename.vcd] [-e tb] [-v]"
+      echo "Usage: $0 [-f vcd_filename.vcd] [-e tb] [-v] [-t 0011] [-b]"
       exit 0
       ;;
     \?) 
@@ -46,25 +83,118 @@ shift $((OPTIND - 1))  # Shift past parsed options
 
 
 
-echo "Executing .do ..."
-log "Executing following command\n>> C:\\Microsemi\\Libero_SoC_v11.9\\ModelsimPro\\win32acoem\\modelsim.exe -do "compile.do $TB_ENTITY""
-C:\\Microsemi\\Libero_SoC_v11.9\\ModelsimPro\\win32acoem\\modelsim.exe -do "do compile.do $TB_ENTITY"
 
+if $EXEC_BATCH; then
 
-sleep 4
+  # BATCH SIMULATION
+  #========================================================================
+  echo "Sarting simulation batch...."
 
-while true; do
-    if powershell -Command "Get-Process -Name 'vish' -ErrorAction SilentlyContinue" > /dev/null; then
-        log "modelsim still running."
-        sleep 4
-    else
-        log "modelsim has stopped."
-        break;
+  for simid in "${BATCH[@]}"; do
+    echo "Running id::{$simid}"
+
+    # 1. assembling the binary, programming the rom
+    py ../script/assembler.py ../script/casms\&bins/$simid.casm                         # call py script 
+    cp ../script/program.bins ../script/casms\&bins/$simid.bins                         # copy
+    lines=$(wc -l < ../script/program.bins)       
+    padding_lines=$((ROM_SIZE-lines))
+    log "Paddding program with $padding_lines of zero-instructions"
+    (cat ../script/program.bins && zero_line padding_lines) > ../src/mem/program.mem      # fill program.mem
+
+    # 2. compile and run, passing second arg for exec_batch (batch mode, no gui)
+    mkdir ../sim/$simid
+    echo "exit" | vsim.exe -c -l ../sim/$simid/compile_log.ans -do "do compile.do $TB_ENTITY 1"
+
+    echo -e "\x1B[1;33mWARNINGS\x1B[0m" > ../sim/$simid/grep_log.ans  
+    print_separator >> ../sim/$simid/grep_log.ans  
+    grep -i warning --color='auto' ../sim/$simid/compile_log.ans >> ../sim/$simid/grep_log.ans  
+    print_separator >> ../sim/$simid/grep_log.ans  
+    echo -e "\x1B[1;31mERRORS\x1B[0m" >> ../sim/$simid/grep_log.ans  
+    print_separator >> ../sim/$simid/grep_log.ans  
+    grep -Ei '([1-9][0-9]*\s+Errors\b|Error:)' ../sim/0011/compile_log.ans >> ../sim/$simid/grep_log.ans
+
+    if [ $? -eq 0 ]; then
+      # error found in clog
+      echo -e "Errors found during compilation of simid::{$simid}.\nPlease check ../sim/$simid/grep_log.ans ."
+      break
     fi
-    
-done
 
-mv test_vcd.vcd $FILE
+    # remove prev vcd
+    rm ../sim/${simid}/*.vcd
 
-echo "SUCCESS. Waveform exported as $FILE"
+    if $TB_ALL; then
+      # all testbench suite
+      for tb_enty in "${TB_SUITE[@]}"; do
+        echo "run -all; exit" | vsim.exe -c -L mips_design -L mips_verif mips_verif.$tb_enty +access
+        # move vcd file
+        mv $tb_enty.vcd ../sim/$simid/$tb_enty.vcd
+      done
+    else
+      # only requested testbench
+      echo "run -all; exit" | vsim.exe -c -L mips_design -L mips_verif mips_verif.$TB_ENTITY +access
+      # move vcd file
+      mv $TB_ENTITY.vcd ../sim/$simid/$TB_ENTITY.vcd
+    fi
+
+    # for each simulation testbench run simulation (this automatically saves .vcd files)
+    # echo "run -all; exit" | vsim.exe -c -L mips_design -L mips_verif mips_verif.$TB_ENTITY +access
+    # echo "exit" | vsim.exe -c -L mips_design -L mips_verif mips_verif.$TB_ENTITY
+    #echo "exit" | vsim.exe -c -do "vcd file test_vcd.vcd; vcd add -r *; run -all"
+
+
+    # accessory simulation files, generated by verilog files with fdisplay
+    mv cpu_monitor.txt ../sim/$simid/cpu_monitor.txt
+
+
+    echo ""
+    echo ""
+    print_separator
+    echo ""
+    echo ""
+
+
+  done
+
+else
+
+  # SINGLE SIMULATION
+  #========================================================================
+
+  # if user inserted sim_tag then: 1. run assembler for that simulation, 2. pick program.bins and put it in sim_tag.bins and in program.mem
+  echo "Detected sim_tag. Working on it..."
+  if $SIM_TAG_INSERTED; then
+    py ../script/assembler.py ../script/casms\&bins/$SIM_TAG.casm                         # call py script 
+    cp ../script/program.bins ../script/casms\&bins/$SIM_TAG.bins                         # copy
+    lines=$(wc -l < ../script/program.bins)       
+    padding_lines=$((ROM_SIZE-lines))
+    log "Paddding program with $padding_lines of zero-instructions"
+    (cat ../script/program.bins && zero_line padding_lines) > ../src/mem/program.mem      # fill program.mem
+  fi
+
+  echo "Executing .do ..."
+  log "Executing following command\n>> C:\\Microsemi\\Libero_SoC_v11.9\\ModelsimPro\\win32acoem\\modelsim.exe -do "compile.do $TB_ENTITY""
+  C:\\Microsemi\\Libero_SoC_v11.9\\ModelsimPro\\win32acoem\\modelsim.exe -do "do compile.do $TB_ENTITY"
+
+  sleep 4
+
+  while true; do
+      if powershell -Command "Get-Process -Name 'vish' -ErrorAction SilentlyContinue" > /dev/null; then
+          log "modelsim still running."
+          sleep 4
+      else
+          log "modelsim has stopped."
+          break;
+      fi
+      
+  done
+
+  # !!!USERPARAM
+  mv tb.vcd ../sim/singlefile/tb.vcd
+  mv tb_cpu.vcd ../sim/singlefile/tb_cpu.vcd
+  mv cpu_monitor.txt ../sim/singlefile/cpu_monitor.txt
+
+
+fi
+
+
 

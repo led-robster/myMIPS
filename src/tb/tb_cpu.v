@@ -122,7 +122,7 @@ module tb_cpu;
 
     initial
     begin
-        $dumpfile("test_cpu.fst");
+        $dumpfile("tb_cpu.vcd");
         $dumpvars(0);
     end
 

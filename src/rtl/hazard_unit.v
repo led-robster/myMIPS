@@ -26,8 +26,9 @@
 // Filename: hazard_unit.v
 // Author: Alessandro Fermanelli
 // Date: 06/2025
-// Description: This unit shall avoid data hazards via *forwarding*. Controls muxes to intercept register reads and writes.
-//
+// Description: This unit is used to avoid data hazards via *forwarding* method. Controls muxes to intercept register reads and writes.
+// Currently forwards data to ALU and to RAM. ONLY handling data hazards, NO control hazards.
+// link : https://en.wikipedia.org/wiki/Hazard_(computer_architecture)#Operand_forwarding
 
 
 module hazard_unit #(

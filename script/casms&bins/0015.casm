@@ -1,0 +1,10 @@
+; TEST operations after jump
+;
+ADDI $r2, $r2, d'10;
+J h'00
+ADDI $r2, $r5, d'55;
+ADDI $r2, $r5, d'55;
+ADDI $r2, $r5, d'55;
+ADDI $r2, $r5, d'55;
+ADDI $r2, $r5, d'55;
+ADDI $r2, $r5, d'55;

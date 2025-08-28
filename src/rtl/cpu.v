@@ -185,13 +185,13 @@ alu alu(.OP1(alu_op1), .OP2(alu_op2), .cmd(alu_cmd), .RES(alu_res), .eq_bit(alu_
 ram #(.AWIDTH(RAM_AWIDTH), .DWIDTH(RAM_DWIDTH)) ram(.clk(clk), .rst(rst), .i_rd(ram_rd), .i_wr(ram_wr), 
 .i_raddr(ram_raddr), .i_waddr(ram_waddr), .i_wdata(ram_wdata), .o_rdata(ram_rdata));
 // CONTROL
-control #(.RST_POL(RST_POL)) control(.clk(clk), .rst(rst), .ROM_data(control_rom_data), .rom_rd(control_rom_rd), .ram_rd(control_ram_rd), 
+control #(.RST_POL(RST_POL)) control(.clk(clk), .rst(rst), .rom_data(control_rom_data), .rom_rd(control_rom_rd), .ram_rd(control_ram_rd), 
 .ram_wr(control_ram_wr), .rd_rs(control_rd_rs), .rd_rt(control_rd_rt), .addr_rs(control_addr_rs), .addr_rt(control_addr_rt), .addr_rd(control_addr_rd), 
 .wr_rd(control_wr_rd), .reg_zero(reg_zero), .wb_waddr(control_wb_waddr), .shamt(control_shamt), .immediate(control_immediate), .jump_immediate(control_jimmediate), .ALU_cmd(control_alu_cmd), .RES_MUX(mux_res), 
 .OP2_MUX(mux_op2), .PC_MUX(mux_pc), .SHAMT_IMM_MUX(mux_shamt_imm), 
 .BEQ_MUX(mux_beq), .JUMP_MUX(mux_jump), .WB_MUX(mux_wb), .SILENCE_MUX(mux_silence), .SAVE_PC_MUX(mux_save_pc), .JUMP_IMMEDIATE_MUX(mux_jump_immediate));
 // HAZARD UNIT
-hazard_unit #(.RST_POL(RST_POL)) hazard_unit(.clk(clk), .rst(rst), .en(rd_rs), .instruction(rom_rdata), .alu_res(alu_res_d), .ma_res(mux_res_d), 
+hazard_unit #(.RST_POL(RST_POL)) hazard_unit(.clk(clk), .rst(rst), .en(1'b1), .instruction(rom_rdata), .alu_res(alu_res_d), .ma_res(mux_res_d), 
 .FORWARD_OP1_MUX(mux_forward_op1), .FORWARD_OP2_MUX(mux_forward_op2),
 .FORWARD_RAM_WADDR_MUX(mux_forward_ram_waddr), .FORWARD_RAM_WDATA_MUX(mux_forward_ram_wdata), .fw_op1(fw_op1), .fw_op2(fw_op2), .fw_ram_wdata(fw_ram_wdata));
 

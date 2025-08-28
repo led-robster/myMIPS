@@ -3,9 +3,13 @@
 # Description: 
 # Author: 
 
+#include <tcl.h> 
+
 
 # PARSE POSITIONAL ARGS
 set TB_ENTITY $1
+
+set EXEC_BATCH $2
 
 
 # clean before compiling 
@@ -53,6 +57,10 @@ foreach file $tb_library {
     vlog -work mips_verif $file; # Compile the file into the mips_design library
 }
 
+if {$EXEC_BATCH} {
+    exit
+}
+
 # USER, simulate top_unit and link -L libraries
 vsim -L mips_design -L mips_verif $top_unit
 
@@ -64,13 +72,17 @@ mem load -infile ../src/mem/program.mem -format bin /$TB_ENTITY/cpu_inst/rom
 #mem load -infile ../src/mem/data.mem -format bin /$TB_ENTITY/top_inst/cpu_inst/ram
 mem load -infile ../src/mem/data.mem -format bin /$TB_ENTITY/cpu_inst/ram
 
+
+# VCD GENERATION, !!!DEPRECATED , vcd generation happens in testbenches .v
 # generate vcd for external consultance
-vcd file test_vcd.vcd
+# vcd file test_vcd.vcd
 # vcd add -r /tb_ram/*
-vcd add -r *
+# vcd add -r *
 
-add wave -rec sim:/*
+# add wave -rec sim:/*
 
+
+# RUN SIMULATION
 run -all
 
 #quit -sim

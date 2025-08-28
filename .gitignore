@@ -1,19 +1,16 @@
-# DSIM
-*.env
-*.log
-filelist_SV.txt
-*.dpf
-VHDL_SystemVerilog\
 
+*.bak
+*.fst
+*.vvp
+
+
+# /build
 build/*
 !build/clean.do
 !build/compile.do
 !build/modelsim.sh
 !build/readme.md
 !build/Makefile
-*.bak
-*.fst
-*.vvp
 
 # ignore WAVEFORM fst
 src/tb/*.fst
@@ -22,11 +19,13 @@ src/tb/*.fst
 todo.md
 test/test_campaign.md
 
+# /doc
 doc/*
-!doc/*.pdf
+!doc/*.tex
 !doc/*.drawio
 !doc/*.md
 
+# /src
 # ignore qrun output
 src/*.ini
 src/qrun.out/*

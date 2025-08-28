@@ -30,6 +30,7 @@
 //
 
 module ram #(
+    parameter RST_POL = 1'b1,
     parameter AWIDTH = 8,
     parameter DWIDTH = 16
 ) (
@@ -47,17 +48,51 @@ module ram #(
 
     integer i = 0;
 
+    generate
+        if (RST_POL==1'b0)
+            always @(posedge clk or negedge rst) begin
+                if (!rst) begin
+                    o_rdata <= {DWIDTH{1'b1}};
+                end else if (i_rd==1'b1) begin
+                    o_rdata <= RAM[i_raddr];
+                end else if (i_wr==1'b1) begin
+                    RAM[i_waddr] <= i_wdata;
+                end
+            end
+        else
+            always @(posedge clk or posedge rst) begin
+                if (!rst) begin
+                    o_rdata <= {DWIDTH{1'b1}};
+                end else if (i_rd==1'b1) begin
+                    o_rdata <= RAM[i_raddr];
+                end else if (i_wr==1'b1) begin
+                    RAM[i_waddr] <= i_wdata;
+                end
+            end
+    endgenerate
 
-    always @(posedge clk or negedge rst) begin
-        if (!rst) begin
+    always @(posedge clk or rst) begin
+        if (RST_POL==1'b0) begin
             o_rdata <= {DWIDTH{1'b1}};
         end else if (i_rd==1'b1) begin
             o_rdata <= RAM[i_raddr];
         end else if (i_wr==1'b1) begin
             RAM[i_waddr] <= i_wdata;
         end
-
     end
+
+
+    // THIS WORKS.
+    //
+    // always @(posedge clk or negedge rst) begin
+    //     if (!rst) begin
+    //         o_rdata <= {DWIDTH{1'b1}};
+    //     end else if (i_rd==1'b1) begin
+    //         o_rdata <= RAM[i_raddr];
+    //     end else if (i_wr==1'b1) begin
+    //         RAM[i_waddr] <= i_wdata;
+    //     end
+    // end
 
 
     initial begin

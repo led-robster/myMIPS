@@ -56,8 +56,8 @@ module tb;
 
     initial
     begin
-        $dumpfile("test.fst");
-        $dumpvars(0);
+        $dumpfile("tb.vcd");
+        $dumpvars(0, tb);
     end
 
 

@@ -27,7 +27,7 @@
 // Author: Alessandro Fermanelli
 // Date: 06/2025
 // Description: This unit is the instruction interpreter. Directly controls muxes, writeback writes and stallings (J instr).
-//
+// Minimal control hazard handler via pipeline bubbling. BEQ, J, JAL, JR instruct for pipeline bubbling.
 
 module control #(
     parameter RST_POL = 1'b0
@@ -35,7 +35,7 @@ module control #(
     input clk,
     input rst,
     // ROM
-    input[15:0] ROM_data,
+    input[15:0] rom_data,
     output reg rom_rd,
     // RAM
     output reg ram_rd,
@@ -49,23 +49,23 @@ module control #(
     output reg[3:0] wb_waddr,
     output wr_rd,
     input[15:0] reg_zero,
-    //
+    // immediate part
     output [5:0] immediate,
     output [2:0] shamt,
     output reg[11:0] jump_immediate,
     // ALU
     output reg[2:0] ALU_cmd,
     // MUXes
-    output reg RES_MUX,
-    output reg OP2_MUX,
-    output reg PC_MUX,
-    output reg SHAMT_IMM_MUX, 
-    output reg BEQ_MUX,
-    output reg JUMP_MUX,
-    output reg WB_MUX,
-    output reg SILENCE_MUX,
-    output reg SAVE_PC_MUX,
-    output reg JUMP_IMMEDIATE_MUX
+    output reg RES_MUX,                 // switch for either alu result or ram reading
+    output reg OP2_MUX,                 // switch for either op2=reg or op2=immediate/shamt
+    output reg PC_MUX,                  // switch for either pc=pc+1 or pc=pc !!! NOTE : consider to delete this, beacuse jump instructions are handled by silencing rom
+    output reg SHAMT_IMM_MUX,           // switch for either op2=imm or op2=shamt
+    output reg BEQ_MUX,                 // switch for either PC=PC+offset pr PC=PC+1
+    output reg JUMP_MUX,                // switch for either PC=pc_incr or PC=jump_immediate
+    output reg WB_MUX,                  // switch for either addr_rd for writeback is rd_dd or wb_waddr
+    output reg SILENCE_MUX,             // switch for either pipeline stall or not
+    output reg SAVE_PC_MUX,             // switch for either writeback PC address or not
+    output reg JUMP_IMMEDIATE_MUX       // switch for either immediate or jump immediate
 );
 
 reg[3:0] state;
@@ -133,7 +133,7 @@ always @(posedge clk or negedge rst) begin
     end
 end
 
-assign instruction = ROM_data;
+assign instruction = rom_data;
 
 wire op_switch; // used for sll and srl
 assign op_switch = (opcode==0 & Fcode==5 | opcode==0 & Fcode==6) ? (1) : (0);
@@ -319,9 +319,6 @@ always @(posedge clk or rst) begin
             end
 
 
-            if (silence_ddd==1'b1) begin
-                SILENCE_MUX <= 1'b0;
-            end
 
             // handle null instruction
             if (instruction==0) begin
@@ -340,12 +337,14 @@ always @(posedge clk or rst) begin
                 silence_op      <= 1'b0;
             end
 
-            if (SILENCE_MUX==1'b1) begin
-                PC_MUX <= 1'b0;
-            end
+
+            // end of silence, turn off mux, re-enable PC incr
             if (silence_ddd==1'b1) begin
-                PC_MUX <= 1'b1;
+                SILENCE_MUX <= 1'b0;
+                // PC_MUX <= 1'b1;
             end
+
+
 
     end
 
