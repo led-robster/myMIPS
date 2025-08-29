@@ -16,7 +16,7 @@ SIM_TAG_INSERTED=false
 ROM_SIZE=256 # !!!USERPARAM  ,  size of the ROM as in VHDL files
 EXEC_BATCH=false #execute batch of simulations
 BATCH=("0011" "0012" "0013" "0014" "0015") # !!!USERPARAM  , list of batch
-TB_SUITE=("tb" tb_cpu) # !!!USERPARAM  ,  list of testbench entities
+TB_SUITE=("tb" "tb_cpu" "tb_regfile") # !!!USERPARAM  ,  list of testbench entities
 TB_ALL=false
 
 
@@ -111,7 +111,7 @@ if $EXEC_BATCH; then
     print_separator >> ../sim/$simid/grep_log.ans  
     echo -e "\x1B[1;31mERRORS\x1B[0m" >> ../sim/$simid/grep_log.ans  
     print_separator >> ../sim/$simid/grep_log.ans  
-    grep -Ei '([1-9][0-9]*\s+Errors\b|Error:)' ../sim/0011/compile_log.ans >> ../sim/$simid/grep_log.ans
+    grep -Ei '([1-9][0-9]*\s+Errors\b|Error:)' ../sim/$simid/compile_log.ans >> ../sim/$simid/grep_log.ans
 
     if [ $? -eq 0 ]; then
       # error found in clog
@@ -134,6 +134,11 @@ if $EXEC_BATCH; then
       echo "run -all; exit" | vsim.exe -c -L mips_design -L mips_verif mips_verif.$TB_ENTITY +access
       # move vcd file
       mv $TB_ENTITY.vcd ../sim/$simid/$TB_ENTITY.vcd
+
+      if [ $? -eq 1 ]; then
+        echo "Moved $TB_ENTITY.vcd to directory ../sim/$simid/"
+      fi
+
     fi
 
     # for each simulation testbench run simulation (this automatically saves .vcd files)
@@ -172,8 +177,8 @@ else
   fi
 
   echo "Executing .do ..."
-  log "Executing following command\n>> C:\\Microsemi\\Libero_SoC_v11.9\\ModelsimPro\\win32acoem\\modelsim.exe -do "compile.do $TB_ENTITY""
-  C:\\Microsemi\\Libero_SoC_v11.9\\ModelsimPro\\win32acoem\\modelsim.exe -do "do compile.do $TB_ENTITY"
+  log "Executing following command\n>> C:\\Microsemi\\Libero_SoC_v11.9\\ModelsimPro\\win32acoem\\modelsim.exe -do "compile.do $TB_ENTITY 0""
+  C:\\Microsemi\\Libero_SoC_v11.9\\ModelsimPro\\win32acoem\\modelsim.exe -l ../sim/singlefile/compile_log.ans -do "do compile.do $TB_ENTITY 0"
 
   sleep 4
 
@@ -187,6 +192,19 @@ else
       fi
       
   done
+
+  echo -e "\x1B[1;33mWARNINGS\x1B[0m" > ../sim/singlefile/grep_log.ans  
+  print_separator >> ../sim/singlefile/grep_log.ans  
+  grep -i warning --color='auto' ../sim/singlefile/compile_log.ans >> ../sim/singlefile/grep_log.ans  
+  print_separator >> ../sim/singlefile/grep_log.ans  
+  echo -e "\x1B[1;31mERRORS\x1B[0m" >> ../sim/singlefile/grep_log.ans  
+  print_separator >> ../sim/singlefile/grep_log.ans  
+  grep -Ei '([1-9][0-9]*\s+Errors\b|Error:)' ../sim/singlefile/compile_log.ans >> ../sim/singlefile/grep_log.ans
+
+  if [ $? -eq 0 ]; then
+    # error found in clog
+    echo -e "Errors found during compilation of simid::{$SIM_TAG}.\nPlease check ../sim/singlefile/grep_log.ans ."
+  fi
 
   # !!!USERPARAM
   mv tb.vcd ../sim/singlefile/tb.vcd

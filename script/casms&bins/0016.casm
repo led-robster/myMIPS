@@ -1,0 +1,8 @@
+; TEST write phase1, read phase2
+;
+ADDI $r2, $r1, d'10 ; r1 = r2+10 FETCH
+NOP ; DECODE
+NOP ; EXECUTE
+ADDI $r1, $r5, d'55 ; r5=r1+55=65  EXECUTE r1 gets written in phase 1 and gets read in phase 2
+NOP
+NOP

@@ -151,6 +151,17 @@ always @(*) begin
     end
 end
 
+// TESTING
+// always @(posedge clk) begin
+//     addr_rs <= {bank_regfile, instruction[11:9]};
+//     addr_rt <= {bank_regfile, instruction[8:6]};
+//     addr_rd <= {bank_regfile, instruction[5:3]};
+//     if (op_switch) begin
+//         addr_rs <= {bank_regfile, instruction[8:6]};
+//         addr_rd <= {bank_regfile, instruction[11:9]};
+//     end
+// end
+
 
 // PIPELINE IS EXTERNAL.
 // shamt 1cc pipeline. shamt can arrive to EXECUTE.

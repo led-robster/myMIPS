@@ -271,6 +271,8 @@ def main():
 
     for line in fh.readlines():
 
+        line = line.strip()
+
         line_cnt += 1
 
         if line_cnt%5==0:
@@ -278,7 +280,7 @@ def main():
 
         line_list = line.split(" ")
 
-        if line_list[0]==";" or len(line_list)==1:
+        if line_list[0]==";":
             # comment line
             continue
 
@@ -393,6 +395,9 @@ def main():
             if GENERATE_REF:
                 register_source = "NONE"
                 register_temp = "NONE"
+
+        elif opcode=="nop":
+            line_bin = "0"*16
 
 
         else :

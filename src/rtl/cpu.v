@@ -82,7 +82,7 @@ reg rd_rt;
 wire[3:0] addr_rd;
 wire wr_rd;
 wire[15:0] wdata_rd;
-wire[15:0] rs, rt;
+reg[15:0] rs, rt;
 wire[15:0] reg_zero;
 // alu port
 wire[15:0] alu_op1, alu_op2;
@@ -169,6 +169,8 @@ wire[15:0] beq_mux_out;
 wire[1:0] pc_mux_out;
 reg[15:0] rs_sampled;
 reg[15:0] rt_sampled;
+wire[15:0] regfile_rs;
+wire[15:0] regfile_rt;
 
 
 // ALLOCATIONS
@@ -177,8 +179,8 @@ reg unsigned[ROM_AWIDTH-1:0] PC;
 // internal ROM
 rom #(.AWIDTH(ROM_AWIDTH)) rom(.clk(clk), .i_rd(rom_rd_d), .i_raddr(rom_raddr), .o_rdata(rom_rdata));
 // REGFILE
-regfile #(.AWIDTH(4)) regfile(.clk(clk), .clear(regfile_clear), .addr_rs(addr_rs), .req_rs(rd_rs), .addr_rt(addr_rt), 
-.req_rt(rd_rt), .addr_rd(addr_rd), .req_rd(wr_rd), .wdata(wdata_rd), .rs(rs), .rt(rt), .reg_zero(reg_zero));
+regfile_v2 #(.AWIDTH(4)) regfile(.clk(clk), .clear(regfile_clear), .addr_rs(addr_rs), .req_rs(rd_rs), .addr_rt(addr_rt), 
+.req_rt(rd_rt), .addr_rd(addr_rd), .req_rd(wr_rd), .wdata(wdata_rd), .rs(regfile_rs), .rt(regfile_rt), .reg_zero(reg_zero));
 // ALU
 alu alu(.OP1(alu_op1), .OP2(alu_op2), .cmd(alu_cmd), .RES(alu_res), .eq_bit(alu_eqbit), .ovF(alu_ovF));
 // RAM internal
@@ -264,11 +266,11 @@ assign ram_wdata = mux_forward_ram_wdata_d ? res_mux_out : rt_d ;
 // assign ram_waddr = mux_forward_ram_waddr_dd ? res_mux_out  : alu_res_d;
 
 always @(posedge clk ) begin
-    rs_sampled <= rs;
+    rs <= regfile_rs;
 end
 
 always @(posedge clk ) begin
-    rt_sampled <= rt;
+    rt_sampled <= regfile_rt;
 end
 
 // sequential nets

@@ -35,7 +35,7 @@ set tb_dir "../src/tb"
 #
 set source_library_path [glob -directory "../src/rtl/" *.v *.sv]
 # USER
-set tb_library "../src/tb/tb_debouncer.sv ../src/tb/tb_ram.sv ../src/tb/tb_rom.sv ../src/tb/tb_alu.sv ../src/tb/tb_cpu.v"
+set tb_library "../src/tb/tb_debouncer.sv ../src/tb/tb_ram.sv ../src/tb/tb_rom.sv ../src/tb/tb_alu.sv ../src/tb/tb_cpu.v ../src/tb/tb_regfile.v"
 
 # create library for modelsim
 vlib mips_design

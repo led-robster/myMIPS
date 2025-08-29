@@ -1,0 +1,40 @@
+[1;33mWARNINGS[0m
+======================================================================
+# Errors: 0, Warnings: 0
+# Errors: 0, Warnings: 0
+# Errors: 0, Warnings: 0
+# Errors: 0, Warnings: 0
+# Errors: 0, Warnings: 0
+# ** Warning: ../src/rtl/cpu.v(178): (vlog-2608) Keyword "unsigned" not allowed here in Verilog 2001.
+# Errors: 0, Warnings: 1
+# Errors: 0, Warnings: 0
+# ** Warning: ../src/rtl/debouncer.v(47): (vlog-2608) Keyword "unsigned" not allowed here in Verilog 2001.
+# Errors: 0, Warnings: 1
+# Errors: 0, Warnings: 0
+# Errors: 0, Warnings: 0
+# Errors: 0, Warnings: 0
+# Errors: 0, Warnings: 0
+# Errors: 0, Warnings: 0
+# Errors: 0, Warnings: 0
+# Errors: 0, Warnings: 0
+# Errors: 0, Warnings: 0
+# Errors: 0, Warnings: 0
+# Errors: 0, Warnings: 0
+# Errors: 0, Warnings: 0
+# Errors: 0, Warnings: 0
+# Errors: 0, Warnings: 0
+# Errors: 0, Warnings: 0
+# Errors: 0, Warnings: 0
+# Errors: 0, Warnings: 0
+# Errors: 0, Warnings: 0
+# ** Warning: (vsim-3015) ../src/tb/tb_cpu.v(65): [PCDPC] - Port size (16) does not match connection size (1) for port 'DBG_rs'. The port definition is at: ../src/rtl/cpu.v(48).
+# ** Warning: (vsim-3015) ../src/tb/tb_cpu.v(65): [PCDPC] - Port size (16) does not match connection size (1) for port 'DBG_rt'. The port definition is at: ../src/rtl/cpu.v(49).
+# ** Warning: (vsim-3017) ../src/rtl/cpu.v(196): [TFMPC] - Too few port connections. Expected 14, found 13.
+# ** Warning: (vsim-3015) ../src/rtl/cpu.v(196): [PCDPC] - Port size (16) does not match connection size (1) for port 'ma_res'. The port definition is at: ../src/rtl/hazard_unit.v(43).
+# ** Warning: (vsim-3722) ../src/rtl/cpu.v(196): [TFMPC] - Missing connection for port 'FORWARD_RAM_MUX'.
+# ** Warning: (vsim-3015) ../src/tb/tb_cpu.v(86): [PCDPC] - Port size (16) does not match connection size (1) for port 'DBG_rs'. The port definition is at: ../src/rtl/cpu_monitor.v(50).
+# ** Warning: (vsim-3015) ../src/tb/tb_cpu.v(86): [PCDPC] - Port size (16) does not match connection size (1) for port 'DBG_rt'. The port definition is at: ../src/rtl/cpu_monitor.v(51).
+# Errors: 0, Warnings: 7
+======================================================================
+[1;31mERRORS[0m
+======================================================================
