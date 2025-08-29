@@ -33,6 +33,9 @@ src/rtl/qrun.out/*
 src/rtl/work/*
 src/rtl/*.ini
 
+# /sim
+sim/**/*.vcd
+
 # ignore ref_casm.txt
 script/ref_casm.txt
 
