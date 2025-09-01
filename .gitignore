@@ -35,6 +35,7 @@ src/rtl/*.ini
 
 # /sim
 sim/**/*.vcd
+sim/*
 
 # ignore ref_casm.txt
 script/ref_casm.txt
