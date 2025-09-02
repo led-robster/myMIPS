@@ -11,7 +11,7 @@
             "request": "launch",
             "program": "${file}",
             "console": "integratedTerminal",
-            "args": ["casms&bins/0016.casm"],
+            "args": ["program.casm", "-d"],
             "cwd": "${workspaceFolder}"
         }
     ]

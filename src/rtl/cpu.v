@@ -270,7 +270,7 @@ always @(posedge clk ) begin
 end
 
 always @(posedge clk ) begin
-    rt_sampled <= regfile_rt;
+    rt <= regfile_rt;
 end
 
 // sequential nets

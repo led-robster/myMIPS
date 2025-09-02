@@ -1,15 +1,15 @@
 ; test 0014
-
-ADDI $r2, $r1, d'10
-AND $r3, $r1, $r2
-SLT $r1, $r3, $r2
-ADD $r5, $r1, $r2
-SUB $r6, $r5, $r2
-OR $r6, $r5, $r2
-SLTI $r2, $r6, h'F
-SLL $r5, $r7, d'3
-SRL $r3, $r1, d'3
-LW $r7, $r2, d'10
+;
+ADDI $r2, $r1, d'10 ; r1=10
+AND $r3, $r1, $r2 ; r3=0
+SLT $r1, $r3, $r2 ; r1=0
+ADD $r5, $r1, $r2 ; r5=0
+SUB $r6, $r5, $r2 ; r6=0
+OR $r6, $r5, $r2 ; r6=0
+SLTI $r2, $r6, h'F ; r6=1
+SLL $r5, $r7, d'3 ; r5=0
+SRL $r3, $r1, d'3 ; r3=0
+LW $r7, $r2, d'10 ; r2=RAM[0+10]
 SW $r3, $r2, d'10
 BEQ $r3, $r1, d'1 ; if $r0==$r1 then PC = PC + 2 + 2 * offset
 J h'2
